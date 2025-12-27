@@ -1,5 +1,5 @@
-<svg width="800" height="700"
-     viewBox="-100 -100 600 600"
+<svg width="600" height="600"
+     viewBox="0 0 600 600"
      xmlns="http://www.w3.org/2000/svg">
 
   <style>
@@ -8,11 +8,40 @@
       --outline: rgba(0,0,0,0.35);
       cursor: pointer;
     }
-
-    .top   { fill: var(--base); filter: brightness(2); stroke: var(--outline); stroke-width:1; stroke-linejoin:round; }
-    .left  { fill: var(--base); filter: brightness(0.95); stroke: var(--outline); stroke-width:1; stroke-linejoin:round; }
-    .right { fill: var(--base); filter: brightness(0.5);  stroke: var(--outline); stroke-width:1; stroke-linejoin:round; }
+    .face {
+      stroke: var(--outline);
+      stroke-width:1;
+      stroke-linejoin:round;
+      vector-effect: non-scaling-stroke;
+    }
   </style>
+
+  <!-- SVG filters for brightness -->
+  <defs>
+    <filter id="bright-top">
+      <feComponentTransfer>
+        <feFuncR type="linear" slope="1.15"/>
+        <feFuncG type="linear" slope="1.15"/>
+        <feFuncB type="linear" slope="1.15"/>
+      </feComponentTransfer>
+    </filter>
+
+    <filter id="bright-left">
+      <feComponentTransfer>
+        <feFuncR type="linear" slope="0.95"/>
+        <feFuncG type="linear" slope="0.95"/>
+        <feFuncB type="linear" slope="0.95"/>
+      </feComponentTransfer>
+    </filter>
+
+    <filter id="bright-right">
+      <feComponentTransfer>
+        <feFuncR type="linear" slope="0.8"/>
+        <feFuncG type="linear" slope="0.8"/>
+        <feFuncB type="linear" slope="0.8"/>
+      </feComponentTransfer>
+    </filter>
+  </defs>
 
   <g id="cubes" class="cube">
     <script type="application/ecmascript"><![CDATA[
@@ -26,7 +55,6 @@
       const svgNS = "http://www.w3.org/2000/svg";
       const parent = document.currentScript.parentNode;
 
-      // Painter’s order: back to front
       for (let z=0; z<size; z++){
         for (let y=0; y<size; y++){
           for (let x=0; x<size; x++){
@@ -36,22 +64,28 @@
             const g = document.createElementNS(svgNS,"g");
             g.setAttribute("transform", `translate(${sx}, ${sy})`);
 
-            // Top face
+            // top face
             const top = document.createElementNS(svgNS,"polygon");
-            top.setAttribute("class","top");
+            top.setAttribute("class","face");
             top.setAttribute("points","64 16,96 32,64 48,32 32");
+            top.setAttribute("fill","#8fb3a2");
+            top.setAttribute("filter","url(#bright-top)");
             g.appendChild(top);
 
-            // Left face
+            // left face
             const left = document.createElementNS(svgNS,"polygon");
-            left.setAttribute("class","left");
+            left.setAttribute("class","face");
             left.setAttribute("points","32 32,64 48,64 80,32 64");
+            left.setAttribute("fill","#8fb3a2");
+            left.setAttribute("filter","url(#bright-left)");
             g.appendChild(left);
 
-            // Right face
+            // right face
             const right = document.createElementNS(svgNS,"polygon");
-            right.setAttribute("class","right");
+            right.setAttribute("class","face");
             right.setAttribute("points","96 32,64 48,64 80,96 64 80");
+            right.setAttribute("fill","#8fb3a2");
+            right.setAttribute("filter","url(#bright-right)");
             g.appendChild(right);
 
             // Click to remove cube
