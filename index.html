@@ -1,0 +1,66 @@
+<svg width="600" height="600"
+     viewBox="0 0 600 600"
+     xmlns="http://www.w3.org/2000/svg">
+
+  <style>
+    .cube {
+      --base: #8fb3a2;
+      --outline: rgba(0,0,0,0.35);
+      cursor: pointer;
+    }
+
+    .top   { fill: var(--base); filter: brightness(1.15); stroke: var(--outline); stroke-width:1; stroke-linejoin:round; }
+    .left  { fill: var(--base); filter: brightness(0.95); stroke: var(--outline); stroke-width:1; stroke-linejoin:round; }
+    .right { fill: var(--base); filter: brightness(0.8);  stroke: var(--outline); stroke-width:1; stroke-linejoin:round; }
+  </style>
+
+  <g id="cubes" class="cube">
+    <script type="application/ecmascript"><![CDATA[
+      const tileW = 64;
+      const tileH = 32;
+      const originX = 300;
+      const originY = 50;
+      const levelHeight = 32; // vertical offset per z
+      const size = 5;
+
+      const svgNS = "http://www.w3.org/2000/svg";
+      const parent = document.currentScript.parentNode;
+
+      // Painter’s order: back to front
+      for (let z=0; z<size; z++){
+        for (let y=0; y<size; y++){
+          for (let x=0; x<size; x++){
+            const sx = Math.round(originX + (x - y) * (tileW/2));
+            const sy = Math.round(originY + (x + y) * (tileH/2) - z * levelHeight);
+
+            const g = document.createElementNS(svgNS,"g");
+            g.setAttribute("transform", `translate(${sx}, ${sy})`);
+
+            // Top face
+            const top = document.createElementNS(svgNS,"polygon");
+            top.setAttribute("class","top");
+            top.setAttribute("points","64 16,96 32,64 48,32 32");
+            g.appendChild(top);
+
+            // Left face
+            const left = document.createElementNS(svgNS,"polygon");
+            left.setAttribute("class","left");
+            left.setAttribute("points","32 32,64 48,64 80,32 64");
+            g.appendChild(left);
+
+            // Right face
+            const right = document.createElementNS(svgNS,"polygon");
+            right.setAttribute("class","right");
+            right.setAttribute("points","96 32,64 48,64 80,96 64 80");
+            g.appendChild(right);
+
+            // Click to remove cube
+            g.addEventListener("click", () => g.remove());
+
+            parent.appendChild(g);
+          }
+        }
+      }
+    ]]></script>
+  </g>
+</svg>
