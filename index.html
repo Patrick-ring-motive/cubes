@@ -1,109 +1,119 @@
-<svg width="600" height="600"
-     viewBox="-100 -100 700 700"
-     xmlns="http://www.w3.org/2000/svg">
-
+<svg width="600" height="600" viewBox="-100 -100 700 700" xmlns="http://www.w3.org/2000/svg">
   <style>
     .face {
-      fill: #8fb3a2;
       stroke: rgba(0,0,0,0.35);
       stroke-width: 1;
       stroke-linejoin: round;
       vector-effect: non-scaling-stroke;
+      fill: #8fb3a2;
       cursor: pointer;
     }
   </style>
 
   <defs id="filters"></defs>
 
-  <script><![CDATA[
+  <script type="application/ecmascript"><![CDATA[
     const svgNS = "http://www.w3.org/2000/svg";
-    const svg = document.currentScript.parentNode;
     const defs = document.getElementById("filters");
+    const svg = document.currentScript.parentNode;
 
     const size = 5;
     const tileW = 64;
     const tileH = 32;
-    const levelH = 32;
     const originX = 250;
     const originY = 50;
+    const levelHeight = 32;
 
-    function faceFilter(x,y,z,brightness) {
+    function createFaceFilter(x, y, z, brightness) {
       const id = `f-${x}-${y}-${z}-${brightness}`;
       if (document.getElementById(id)) return id;
 
-      const f = document.createElementNS(svgNS,"filter");
-      f.id = id;
+      const filter = document.createElementNS(svgNS,"filter");
+      filter.setAttribute("id", id);
 
+      // saturation (subtle)
       const sat = document.createElementNS(svgNS,"feColorMatrix");
       sat.setAttribute("type","saturate");
-      sat.setAttribute("values",(1 + x*0.05).toFixed(3));
+      sat.setAttribute("values", (1 + x*0.05).toFixed(3));
       sat.setAttribute("result","s");
-      f.appendChild(sat);
+      filter.appendChild(sat);
 
-      const ct = document.createElementNS(svgNS,"feComponentTransfer");
-      ct.setAttribute("in","s");
-      ct.setAttribute("result","c");
-      ["R","G","B"].forEach(ch=>{
+      // contrast (subtle)
+      const contrast = document.createElementNS(svgNS,"feComponentTransfer");
+      contrast.setAttribute("in","s");
+      contrast.setAttribute("result","c");
+      ['R','G','B'].forEach(ch=>{
         const fn = document.createElementNS(svgNS,"feFunc"+ch);
         fn.setAttribute("type","linear");
         fn.setAttribute("slope",(1 + y*0.05).toFixed(3));
-        ct.appendChild(fn);
+        contrast.appendChild(fn);
       });
-      f.appendChild(ct);
+      filter.appendChild(contrast);
 
+      // hue rotation (subtle)
       const hue = document.createElementNS(svgNS,"feColorMatrix");
       hue.setAttribute("in","c");
       hue.setAttribute("type","hueRotate");
       hue.setAttribute("values",(z*10).toFixed(1));
       hue.setAttribute("result","h");
-      f.appendChild(hue);
+      filter.appendChild(hue);
 
-      const br = document.createElementNS(svgNS,"feComponentTransfer");
-      br.setAttribute("in","h");
-      ["R","G","B"].forEach(ch=>{
+      // brightness for the face
+      const bright = document.createElementNS(svgNS,"feComponentTransfer");
+      bright.setAttribute("in","h");
+      ['R','G','B'].forEach(ch=>{
         const fn = document.createElementNS(svgNS,"feFunc"+ch);
         fn.setAttribute("type","linear");
-        fn.setAttribute("slope",brightness);
-        br.appendChild(fn);
+        fn.setAttribute("slope",brightness.toFixed(3));
+        bright.appendChild(fn);
       });
-      f.appendChild(br);
+      filter.appendChild(bright);
 
-      defs.appendChild(f);
+      defs.appendChild(filter);
       return id;
     }
 
-    for (let z=0; z<size; z++) {
-      for (let y=0; y<size; y++) {
-        for (let x=0; x<size; x++) {
-
-          const sx = originX + (x - y) * (tileW/2);
-          const sy = originY + (x + y) * (tileH/2) - z*levelH;
+    for (let z=0; z<size; z++){
+      for (let y=0; y<size; y++){
+        for (let x=0; x<size; x++){
+          const sx = Math.round(originX + (x - y) * (tileW/2));
+          const sy = Math.round(originY + (x + y) * (tileH/2) - z * levelHeight);
 
           const g = document.createElementNS(svgNS,"g");
-          g.setAttribute("transform",`translate(${sx},${sy})`);
+          g.setAttribute("transform", `translate(${sx},${sy})`);
 
-          // TOP
+          // top face (unchanged)
           const top = document.createElementNS(svgNS,"polygon");
           top.setAttribute("points","64 16,96 32,64 48,32 32");
           top.setAttribute("class","face");
-          top.setAttribute("filter",`url(#${faceFilter(x,y,z,1.15)})`);
+          const fTop = createFaceFilter(x,y,z,1.15);
+          top.setAttribute("filter",`url(#${fTop})`);
           g.appendChild(top);
 
-          // LEFT (wider)
+          // left face (parallelogram with vector v_left = (-32,32))
+          // points: D, C, C+v_left, D+v_left
+          // D = (32,32), C = (64,48), v_left = (-32,32)
+          // C+v_left = (32,80), D+v_left = (0,64)
           const left = document.createElementNS(svgNS,"polygon");
-          left.setAttribute("points","32 32,64 48,64 88,24 68");
+          left.setAttribute("points","32 32,64 48,32 80,0 64");
           left.setAttribute("class","face");
-          left.setAttribute("filter",`url(#${faceFilter(x,y,z,0.95)})`);
+          const fLeft = createFaceFilter(x,y,z,0.95);
+          left.setAttribute("filter",`url(#${fLeft})`);
           g.appendChild(left);
 
-          // RIGHT (narrower)
+          // right face (parallelogram with vector v_right = (24,32))
+          // points: B, C, C+v_right, B+v_right
+          // B = (96,32), C = (64,48), v_right = (24,32)
+          // C+v_right = (88,80), B+v_right = (120,64)
           const right = document.createElementNS(svgNS,"polygon");
-          right.setAttribute("points","96 32,64 48,64 88,104 68");
+          right.setAttribute("points","96 32,64 48,88 80,120 64");
           right.setAttribute("class","face");
-          right.setAttribute("filter",`url(#${faceFilter(x,y,z,0.8)})`);
+          const fRight = createFaceFilter(x,y,z,0.8);
+          right.setAttribute("filter",`url(#${fRight})`);
           g.appendChild(right);
 
-          g.addEventListener("click",()=>g.remove());
+          g.addEventListener("click", ()=> g.remove());
+
           svg.appendChild(g);
         }
       }
