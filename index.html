@@ -4,7 +4,58 @@
       stroke: none;
       cursor: pointer;
     }
+    #controls {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      padding: 10px;
+      background: rgba(255,255,255,0.9);
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      font-family: system-ui, sans-serif;
+      font-size: 14px;
+      z-index: 1000;
+    }
+    #controls label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+    #colorInput {
+      width: 100px;
+      height: 30px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+    #modeToggle {
+      width: 100%;
+      padding: 8px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 14px;
+      transition: background-color 0.2s;
+    }
+    #modeToggle.add {
+      background-color: #4CAF50;
+      color: white;
+    }
+    #modeToggle.remove {
+      background-color: #f44336;
+      color: white;
+    }
   </style>
+
+  <foreignObject x="-200" y="-200" width="300" height="120">
+    <div xmlns="http://www.w3.org/1999/xhtml" id="controls">
+      <label for="colorInput">Block Color:</label>
+      <input type="color" id="colorInput" value="#708000"/>
+      <button id="modeToggle" class="add">Mode: Add Blocks</button>
+    </div>
+  </foreignObject>
 
   <defs id="filters">
     <filter id="grain">
@@ -21,26 +72,53 @@
     const svgNS = "http://www.w3.org/2000/svg";
     const defs = document.getElementById("filters");
     const svg = document.currentScript.parentNode;
+    const colorInput = document.getElementById("colorInput");
+    const modeToggle = document.getElementById("modeToggle");
+
+    let isAddMode = true;
+
+    // Toggle between add and remove modes
+    modeToggle.addEventListener("click", () => {
+      isAddMode = !isAddMode;
+      if (isAddMode) {
+        modeToggle.textContent = "Mode: Add Blocks";
+        modeToggle.className = "add";
+      } else {
+        modeToggle.textContent = "Mode: Remove Blocks";
+        modeToggle.className = "remove";
+      }
+    });
 
     const size = 5;
     const tileW = 64;
-    const tileH = 24; // Reduced for dimetric
+    const tileH = 24;
     const originX = 300;
     const originY = 100;
     const levelHeight = 40;
 
-    // Dimetric projection angles (7:42:42 ratio)
-    const xScale = 0.935; // Right axis scaling
-    const yScale = 0.935; // Left axis scaling
+    const xScale = 0.935;
+    const yScale = 0.935;
 
-    function createFaceFilter(x, y, z, brightness) {
+    // Track existing blocks
+    const blocks = new Map();
+
+    function getBlockKey(x, y, z) {
+      return `${x},${y},${z}`;
+    }
+
+    function createFaceFilter(x, y, z, brightness, color) {
+      const filterId = `f-${x}-${y}-${z}-${brightness}-${color.replace('#','')}`;
+      
+      // Check if filter already exists
+      if (document.getElementById(filterId)) {
+        return filterId;
+      }
+
       const filter = document.createElementNS(svgNS,"filter");
-      const id = `f-${x}-${y}-${z}-${brightness}`;
-      filter.setAttribute("id", id);
+      filter.setAttribute("id", filterId);
 
-      // Base color flood
       const flood = document.createElementNS(svgNS,"feFlood");
-      flood.setAttribute("flood-color","#708000");
+      flood.setAttribute("flood-color", color);
       flood.setAttribute("result","baseColor");
       filter.appendChild(flood);
 
@@ -51,7 +129,6 @@
       composite1.setAttribute("result","coloredShape");
       filter.appendChild(composite1);
 
-       // Add grain
       const turbulence = document.createElementNS(svgNS,"feTurbulence");
       turbulence.setAttribute("type","turbulence");
       turbulence.setAttribute("baseFrequency","1");
@@ -59,7 +136,6 @@
       turbulence.setAttribute("result","noise");
       turbulence.setAttribute("stitchTiles","stitch");
       filter.appendChild(turbulence);
-
 
       const sat = document.createElementNS(svgNS,"feColorMatrix");
       sat.setAttribute("in","coloredShape");
@@ -76,7 +152,7 @@
         func.setAttribute("type","linear");
         func.setAttribute("slope",(1 + y*0.05).toFixed(3));
         contrast.appendChild(func);
-      };
+      }
       filter.appendChild(contrast);
 
       const hue = document.createElementNS(svgNS,"feColorMatrix");
@@ -94,10 +170,9 @@
         func.setAttribute("type","linear");
         func.setAttribute("slope",brightness.toFixed(3));
         bright.appendChild(func);
-      };
+      }
       filter.appendChild(bright);
 
-     
       const colorMatrix = document.createElementNS(svgNS,"feColorMatrix");
       colorMatrix.setAttribute("in","noise");
       colorMatrix.setAttribute("type","saturate");
@@ -120,53 +195,76 @@
       blend.setAttribute("mode","multiply");
       filter.appendChild(blend);
 
-     
-      
       defs.appendChild(filter);
-      return id;
+      return filterId;
     }
 
+    function createBlock(x, y, z, color) {
+      const key = getBlockKey(x, y, z);
+      
+      // Remove existing block if present
+      if (blocks.has(key)) {
+        blocks.get(key).remove();
+      }
+
+      const sx = (originX + x*(tileW*xScale) - y*(tileW*yScale));
+      const sy = (originY + x*(tileH*xScale) + y*(tileH*yScale) - z*levelHeight);
+
+      const g = document.createElementNS(svgNS,"g");
+      g.setAttribute("transform", `translate(${sx},${sy})`);
+      g.dataset.x = x;
+      g.dataset.y = y;
+      g.dataset.z = z;
+
+      const w = tileW * xScale;
+      const h = tileH * yScale;
+      const vHeight = levelHeight;
+
+      // Top face
+      const top = document.createElementNS(svgNS,"polygon");
+      top.setAttribute("points",`${w} 0, ${w*2} ${h}, ${w} ${h*2}, 0 ${h}`);
+      top.setAttribute("class","face");
+      const fTop = createFaceFilter(x,y,z,1.15,color);
+      top.setAttribute("filter",`url(#${fTop})`);
+      g.appendChild(top);
+
+      // Left face
+      const left = document.createElementNS(svgNS,"polygon");
+      left.setAttribute("points",`0 ${h}, ${w} ${h*2}, ${w} ${h*2+vHeight}, 0 ${h+vHeight}`);
+      left.setAttribute("class","face");
+      const fLeft = createFaceFilter(x,y,z,0.95,color);
+      left.setAttribute("filter",`url(#${fLeft})`);
+      g.appendChild(left);
+
+      // Right face
+      const right = document.createElementNS(svgNS,"polygon");
+      right.setAttribute("points",`${w*2} ${h}, ${w} ${h*2}, ${w} ${h*2+vHeight}, ${w*2} ${h+vHeight}`);
+      right.setAttribute("class","face");
+      const fRight = createFaceFilter(x,y,z,0.8,color);
+      right.setAttribute("filter",`url(#${fRight})`);
+      g.appendChild(right);
+
+      // Click handler based on current mode
+      g.addEventListener("click", (e) => {
+        if (isAddMode) {
+          // Add/replace block with selected color
+          createBlock(x, y, z, colorInput.value);
+        } else {
+          // Remove block
+          g.remove();
+          blocks.delete(key);
+        }
+      });
+
+      svg.appendChild(g);
+      blocks.set(key, g);
+    }
+
+    // Initialize grid
     for(let z=0; z!==size; ++z){
       for(let y=0; y!==size; ++y){
         for(let x=0; x!==size; ++x){
-          const sx = (originX + x*(tileW*xScale) - y*(tileW*yScale));
-          const sy = (originY + x*(tileH*xScale) + y*(tileH*yScale) - z*levelHeight);
-
-          const g = document.createElementNS(svgNS,"g");
-          g.setAttribute("transform", `translate(${sx},${sy})`);
-
-          // Dimetric tile dimensions
-          const w = tileW * xScale;
-          const h = tileH * yScale;
-          const vHeight = levelHeight;
-
-          // Top face (parallelogram)
-          const top = document.createElementNS(svgNS,"polygon");
-          top.setAttribute("points",`${w} 0, ${w*2} ${h}, ${w} ${h*2}, 0 ${h}`);
-          top.setAttribute("class","face");
-          const fTop = createFaceFilter(x,y,z,1.15);
-          top.setAttribute("filter",`url(#${fTop})`);
-          g.appendChild(top);
-
-          // Left face
-          const left = document.createElementNS(svgNS,"polygon");
-          left.setAttribute("points",`0 ${h}, ${w} ${h*2}, ${w} ${h*2+vHeight}, 0 ${h+vHeight}`);
-          left.setAttribute("class","face");
-          const fLeft = createFaceFilter(x,y,z,0.95);
-          left.setAttribute("filter",`url(#${fLeft})`);
-          g.appendChild(left);
-
-          // Right face
-          const right = document.createElementNS(svgNS,"polygon");
-          right.setAttribute("points",`${w*2} ${h}, ${w} ${h*2}, ${w} ${h*2+vHeight}, ${w*2} ${h+vHeight}`);
-          right.setAttribute("class","face");
-          const fRight = createFaceFilter(x,y,z,0.8);
-          right.setAttribute("filter",`url(#${fRight})`);
-          g.appendChild(right);
-
-          g.addEventListener("click",()=>g.remove());
-
-          svg.appendChild(g);
+          createBlock(x, y, z, "#708000");
         }
       }
     }
