@@ -47,13 +47,34 @@
       background-color: #f44336;
       color: white;
     }
+    .rotate-btn {
+      width: 48%;
+      padding: 8px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 14px;
+      background-color: #2196F3;
+      color: white;
+      margin-top: 5px;
+    }
+    .rotate-controls {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 5px;
+    }
   </style>
 
-  <foreignObject x="-200" y="-200" width="300" height="120">
+  <foreignObject x="-200" y="-200" width="300" height="160">
     <div xmlns="http://www.w3.org/1999/xhtml" id="controls">
       <label for="colorInput">Block Color:</label>
       <input type="color" id="colorInput" value="#708000"/>
       <button id="modeToggle" class="add">Mode: Add Blocks</button>
+      <div class="rotate-controls">
+        <button id="rotateLeft" class="rotate-btn">↺ Rotate Left</button>
+        <button id="rotateRight" class="rotate-btn">Rotate Right ↻</button>
+      </div>
     </div>
   </foreignObject>
 
@@ -74,6 +95,8 @@
     const svg = document.currentScript.parentNode;
     const colorInput = document.getElementById("colorInput");
     const modeToggle = document.getElementById("modeToggle");
+    const rotateLeftBtn = document.getElementById("rotateLeft");
+    const rotateRightBtn = document.getElementById("rotateRight");
 
     let isAddMode = true;
 
@@ -88,6 +111,64 @@
         modeToggle.className = "remove";
       }
     });
+
+    // Rotate left (counter-clockwise) - rotate data -90 degrees
+    rotateLeftBtn.addEventListener("click", () => {
+      rotateDataCounterClockwise();
+      renderAllBlocks();
+    });
+
+    // Rotate right (clockwise) - rotate data +90 degrees
+    rotateRightBtn.addEventListener("click", () => {
+      rotateDataClockwise();
+      renderAllBlocks();
+    });
+
+    function rotateDataClockwise() {
+      const newBlockData = [];
+      for (let z = 0; z < size; z++) {
+        newBlockData[z] = [];
+        for (let y = 0; y < size; y++) {
+          newBlockData[z][y] = [];
+          for (let x = 0; x < size; x++) {
+            // Clockwise: new[z][y][x] = old[z][size-1-x][y]
+            newBlockData[z][y][x] = blockData[z][size - 1 - x][y];
+          }
+        }
+      }
+      
+      // Copy back
+      for (let z = 0; z < size; z++) {
+        for (let y = 0; y < size; y++) {
+          for (let x = 0; x < size; x++) {
+            blockData[z][y][x] = newBlockData[z][y][x];
+          }
+        }
+      }
+    }
+
+    function rotateDataCounterClockwise() {
+      const newBlockData = [];
+      for (let z = 0; z < size; z++) {
+        newBlockData[z] = [];
+        for (let y = 0; y < size; y++) {
+          newBlockData[z][y] = [];
+          for (let x = 0; x < size; x++) {
+            // Counter-clockwise: new[z][y][x] = old[z][x][size-1-y]
+            newBlockData[z][y][x] = blockData[z][x][size - 1 - y];
+          }
+        }
+      }
+      
+      // Copy back
+      for (let z = 0; z < size; z++) {
+        for (let y = 0; y < size; y++) {
+          for (let x = 0; x < size; x++) {
+            blockData[z][y][x] = newBlockData[z][y][x];
+          }
+        }
+      }
+    }
 
     const size = 5;
     const tileW = 64;
