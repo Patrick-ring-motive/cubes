@@ -5,11 +5,21 @@
       stroke-width: 1;
       stroke-linejoin: round;
       vector-effect: non-scaling-stroke;
+      fill: #8fb3a2;
       cursor: pointer;
     }
   </style>
 
-<defs id="filters"></defs>
+  <defs id="filters">
+    <filter id="grain">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" result="noise"/>
+      <feColorMatrix in="noise" type="saturate" values="0" result="desaturatedNoise"/>
+      <feComponentTransfer in="desaturatedNoise" result="theNoise">
+        <feFuncA type="table" tableValues="0 0 0.05 0"/>
+      </feComponentTransfer>
+      <feBlend in="SourceGraphic" in2="theNoise" mode="multiply"/>
+    </filter>
+  </defs>
 
   <script type="application/ecmascript"><![CDATA[
     const svgNS = "http://www.w3.org/2000/svg";
@@ -66,40 +76,37 @@
       });
       filter.appendChild(bright);
 
+      // Add grain
+      const turbulence = document.createElementNS(svgNS,"feTurbulence");
+      turbulence.setAttribute("type","fractalNoise");
+      turbulence.setAttribute("baseFrequency","0.9");
+      turbulence.setAttribute("numOctaves","4");
+      turbulence.setAttribute("result","noise");
+      filter.appendChild(turbulence);
+
+      const colorMatrix = document.createElementNS(svgNS,"feColorMatrix");
+      colorMatrix.setAttribute("in","noise");
+      colorMatrix.setAttribute("type","saturate");
+      colorMatrix.setAttribute("values","0");
+      colorMatrix.setAttribute("result","desaturatedNoise");
+      filter.appendChild(colorMatrix);
+
+      const componentTransfer = document.createElementNS(svgNS,"feComponentTransfer");
+      componentTransfer.setAttribute("in","desaturatedNoise");
+      componentTransfer.setAttribute("result","theNoise");
+      const funcA = document.createElementNS(svgNS,"feFuncA");
+      funcA.setAttribute("type","table");
+      funcA.setAttribute("tableValues","0 0 0.05 0");
+      componentTransfer.appendChild(funcA);
+      filter.appendChild(componentTransfer);
+
+      const blend = document.createElementNS(svgNS,"feBlend");
+      blend.setAttribute("in2","theNoise");
+      blend.setAttribute("mode","multiply");
+      filter.appendChild(blend);
+
       defs.appendChild(filter);
       return id;
-    }
-
-    function createTexturedFace(points, faceType, x, y, z, brightness) {
-      const patternId = `texture-${faceType}-${x}-${y}-${z}`;
-      const pattern = document.createElementNS(svgNS, "pattern");
-      pattern.setAttribute("id", patternId);
-      pattern.setAttribute("patternUnits", "userSpaceOnUse");
-      pattern.setAttribute("width", "100");
-      pattern.setAttribute("height", "100");
-
-      const image = document.createElementNS(svgNS, "image");
-      image.setAttribute("href", "IMG_5872.webp");
-      image.setAttribute("width", "100");
-      image.setAttribute("height", "100");
-      image.setAttribute("preserveAspectRatio", "none");
-
-      // Apply transform based on face type
-      if (faceType === 'top') {
-        // Top face: skew to match parallelogram
-        image.setAttribute("transform", "matrix(1, 0.4, -1, 0.4, 50, 0)");
-      } else if (faceType === 'left') {
-        // Left face: vertical with left skew
-        image.setAttribute("transform", "matrix(0.6, 0.8, 0, 1.2, 0, 0)");
-      } else if (faceType === 'right') {
-        // Right face: vertical with right skew
-        image.setAttribute("transform", "matrix(0.6, -0.8, 0, 1.2, 20, 40)");
-      }
-
-      pattern.appendChild(image);
-      defs.appendChild(pattern);
-
-      return patternId;
     }
 
     for(let z=0; z<size; z++){
@@ -120,8 +127,6 @@
           const top = document.createElementNS(svgNS,"polygon");
           top.setAttribute("points",`${w} 0, ${w*2} ${h}, ${w} ${h*2}, 0 ${h}`);
           top.setAttribute("class","face");
-          const topPatternId = createTexturedFace(top.getAttribute("points"), 'top', x, y, z, 1.15);
-          top.setAttribute("fill",`url(#${topPatternId})`);
           const fTop = createFaceFilter(x,y,z,1.15);
           top.setAttribute("filter",`url(#${fTop})`);
           g.appendChild(top);
@@ -130,8 +135,6 @@
           const left = document.createElementNS(svgNS,"polygon");
           left.setAttribute("points",`0 ${h}, ${w} ${h*2}, ${w} ${h*2+vHeight}, 0 ${h+vHeight}`);
           left.setAttribute("class","face");
-          const leftPatternId = createTexturedFace(left.getAttribute("points"), 'left', x, y, z, 0.95);
-          left.setAttribute("fill",`url(#${leftPatternId})`);
           const fLeft = createFaceFilter(x,y,z,0.95);
           left.setAttribute("filter",`url(#${fLeft})`);
           g.appendChild(left);
@@ -140,8 +143,6 @@
           const right = document.createElementNS(svgNS,"polygon");
           right.setAttribute("points",`${w*2} ${h}, ${w} ${h*2}, ${w} ${h*2+vHeight}, ${w*2} ${h+vHeight}`);
           right.setAttribute("class","face");
-          const rightPatternId = createTexturedFace(right.getAttribute("points"), 'right', x, y, z, 0.8);
-          right.setAttribute("fill",`url(#${rightPatternId})`);
           const fRight = createFaceFilter(x,y,z,0.8);
           right.setAttribute("filter",`url(#${fRight})`);
           g.appendChild(right);
