@@ -264,13 +264,44 @@
       // Click handler based on current mode
       g.addEventListener("click", (e) => {
         if (isAddMode) {
-          // Add/replace block with selected color
-          blockData[z][y][x] = { exists: true, color: colorInput.value };
+          // Find adjacent empty space to place new block
+          // Priority: top (z+1), then check horizontally
+          let placed = false;
+          
+          // Try placing on top first
+          if (z + 1 < size && !blockData[z + 1][y][x].exists) {
+            blockData[z + 1][y][x] = { exists: true, color: colorInput.value };
+            placed = true;
+          }
+          // Try +x direction
+          else if (!placed && x + 1 < size && !blockData[z][y][x + 1].exists) {
+            blockData[z][y][x + 1] = { exists: true, color: colorInput.value };
+            placed = true;
+          }
+          // Try -y direction
+          else if (!placed && y - 1 >= 0 && !blockData[z][y - 1][x].exists) {
+            blockData[z][y - 1][x] = { exists: true, color: colorInput.value };
+            placed = true;
+          }
+          // Try -x direction
+          else if (!placed && x - 1 >= 0 && !blockData[z][y][x - 1].exists) {
+            blockData[z][y][x - 1] = { exists: true, color: colorInput.value };
+            placed = true;
+          }
+          // Try +y direction
+          else if (!placed && y + 1 < size && !blockData[z][y + 1][x].exists) {
+            blockData[z][y + 1][x] = { exists: true, color: colorInput.value };
+            placed = true;
+          }
+          
+          if (placed) {
+            renderAllBlocks();
+          }
         } else {
           // Remove block
           blockData[z][y][x] = { exists: false, color: null };
+          renderAllBlocks();
         }
-        renderAllBlocks();
       });
 
       svg.appendChild(g);
