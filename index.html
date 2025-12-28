@@ -5,6 +5,7 @@
   <style>
     .face {
       fill: #8fb3a2;
+      stroke: rgba(0,0,0,0.35);
       stroke-width: 1;
       stroke-linejoin: round;
       vector-effect: non-scaling-stroke;
@@ -25,14 +26,6 @@
     const levelH = 32;
     const originX = 250;
     const originY = 50;
-
-    const cubes = new Set();
-    for (let z=0; z<size; z++)
-      for (let y=0; y<size; y++)
-        for (let x=0; x<size; x++)
-          cubes.add(`${x},${y},${z}`);
-
-    const hasCube = (x,y,z) => cubes.has(`${x},${y},${z}`);
 
     function faceFilter(x,y,z,brightness) {
       const id = `f-${x}-${y}-${z}-${brightness}`;
@@ -90,40 +83,27 @@
           g.setAttribute("transform",`translate(${sx},${sy})`);
 
           // TOP
-          if (!hasCube(x,y,z+1)) {
-            const p = document.createElementNS(svgNS,"polygon");
-            p.setAttribute("points","64 16,96 32,64 48,32 32");
-            p.setAttribute("class","face");
-            p.setAttribute("filter",`url(#${faceFilter(x,y,z,1.15)})`);
-            p.style.stroke = "black";
-            g.appendChild(p);
-          }
+          const top = document.createElementNS(svgNS,"polygon");
+          top.setAttribute("points","64 16,96 32,64 48,32 32");
+          top.setAttribute("class","face");
+          top.setAttribute("filter",`url(#${faceFilter(x,y,z,1.15)})`);
+          g.appendChild(top);
 
-          // LEFT
-          if (!hasCube(x-1,y,z)) {
-            const p = document.createElementNS(svgNS,"polygon");
-            p.setAttribute("points","32 32,64 48,64 80,32 64");
-            p.setAttribute("class","face");
-            p.setAttribute("filter",`url(#${faceFilter(x,y,z,0.95)})`);
-            p.style.stroke = "black";
-            g.appendChild(p);
-          }
+          // LEFT (wider)
+          const left = document.createElementNS(svgNS,"polygon");
+          left.setAttribute("points","32 32,64 48,64 88,24 68");
+          left.setAttribute("class","face");
+          left.setAttribute("filter",`url(#${faceFilter(x,y,z,0.95)})`);
+          g.appendChild(left);
 
-          // RIGHT
-          if (!hasCube(x,y-1,z)) {
-            const p = document.createElementNS(svgNS,"polygon");
-            p.setAttribute("points","96 32,64 48,64 80,96 64");
-            p.setAttribute("class","face");
-            p.setAttribute("filter",`url(#${faceFilter(x,y,z,0.8)})`);
-            p.style.stroke = "black";
-            g.appendChild(p);
-          }
+          // RIGHT (narrower)
+          const right = document.createElementNS(svgNS,"polygon");
+          right.setAttribute("points","96 32,64 48,64 88,104 68");
+          right.setAttribute("class","face");
+          right.setAttribute("filter",`url(#${faceFilter(x,y,z,0.8)})`);
+          g.appendChild(right);
 
-          g.addEventListener("click",()=>{
-            cubes.delete(`${x},${y},${z}`);
-            g.remove();
-          });
-
+          g.addEventListener("click",()=>g.remove());
           svg.appendChild(g);
         }
       }
