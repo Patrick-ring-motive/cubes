@@ -1,4 +1,4 @@
-<svg width="700" height="700"
+<svg width="600" height="600"
      viewBox="-100 -100 700 700"
      xmlns="http://www.w3.org/2000/svg">
 
@@ -16,91 +16,131 @@
     }
   </style>
 
-  <!-- Brightness filters for faces -->
-  <defs>
-    <filter id="bright-top">
-      <feComponentTransfer>
-        <feFuncR type="linear" slope="1.15"/>
-        <feFuncG type="linear" slope="1.15"/>
-        <feFuncB type="linear" slope="1.15"/>
-      </feComponentTransfer>
-    </filter>
+  <defs id="filters"></defs>
 
-    <filter id="bright-left">
-      <feComponentTransfer>
-        <feFuncR type="linear" slope="0.95"/>
-        <feFuncG type="linear" slope="0.95"/>
-        <feFuncB type="linear" slope="0.95"/>
-      </feComponentTransfer>
-    </filter>
+  <script type="application/ecmascript"><![CDATA[
+    const tileW = 64;
+    const tileH = 32;
+    const originX = 300;
+    const originY = 50;
+    const levelHeight = 32;
+    const size = 5;
 
-    <filter id="bright-right">
-      <feComponentTransfer>
-        <feFuncR type="linear" slope="0.8"/>
-        <feFuncG type="linear" slope="0.8"/>
-        <feFuncB type="linear" slope="0.8"/>
-      </feComponentTransfer>
-    </filter>
-  </defs>
+    const svgNS = "http://www.w3.org/2000/svg";
+    const svg = document.currentScript.parentNode;
+    const defs = document.getElementById("filters");
 
-  <g id="cubes" class="cube">
-    <script type="application/ecmascript"><![CDATA[
-      const tileW = 64;
-      const tileH = 32;
-      const originX = 300;
-      const originY = 50;
-      const levelHeight = 32;
-      const size = 5;
+    function createCubeFilter(x, y, z) {
+      const filter = document.createElementNS(svgNS,"filter");
+      const id = `cube-filter-${x}-${y}-${z}`;
+      filter.setAttribute("id", id);
 
-      const svgNS = "http://www.w3.org/2000/svg";
-      const parent = document.currentScript.parentNode;
+      // Saturation
+      const sat = document.createElementNS(svgNS,"feColorMatrix");
+      sat.setAttribute("type","saturate");
+      sat.setAttribute("values",(1 + x*0.01).toFixed(3));
+      sat.setAttribute("result","saturated");
+      filter.appendChild(sat);
 
-      for (let z=0; z<size; z++){
-        for (let y=0; y<size; y++){
-          for (let x=0; x<size; x++){
-            const sx = Math.round(originX + (x - y) * (tileW/2));
-            const sy = Math.round(originY + (x + y) * (tileH/2) - z * levelHeight);
+      // Contrast
+      const contrast = document.createElementNS(svgNS,"feComponentTransfer");
+      contrast.setAttribute("in","saturated");
+      contrast.setAttribute("result","contrasted");
+      ['R','G','B'].forEach(c=>{
+        const func = document.createElementNS(svgNS,"feFunc"+c);
+        func.setAttribute("type","linear");
+        func.setAttribute("slope",(1 + y*0.01).toFixed(3));
+        contrast.appendChild(func);
+      });
+      filter.appendChild(contrast);
 
-            const g = document.createElementNS(svgNS,"g");
-            g.setAttribute("transform", `translate(${sx}, ${sy})`);
+      // Hue rotate
+      const hue = document.createElementNS(svgNS,"feColorMatrix");
+      hue.setAttribute("in","contrasted");
+      hue.setAttribute("type","hueRotate");
+      hue.setAttribute("values", (z*3).toFixed(1));
+      filter.appendChild(hue);
 
-            // Apply depth filters
-            const sat = 1 + x*0.5;  // saturation by X
-            const cont = 1 + y*0.5; // contrast by Y
-            const hue = z*30;         // hue-rotate by Z
-            g.setAttribute("style", `filter: saturate(${sat}) contrast(${cont}) hue-rotate(${hue}deg)`);
+      defs.appendChild(filter);
+      return id;
+    }
 
-            // Top face
-            const top = document.createElementNS(svgNS,"polygon");
-            top.setAttribute("class","face");
-            top.setAttribute("points","64 16,96 32,64 48,32 32");
-            top.setAttribute("fill","#8fb3a2");
-            top.setAttribute("filter","url(#bright-top)");
-            g.appendChild(top);
+    // Brightness filters (per-face)
+    const brightTop = document.createElementNS(svgNS,"filter");
+    brightTop.setAttribute("id","bright-top");
+    ['R','G','B'].forEach(c=>{
+      const f = document.createElementNS(svgNS,"feFunc"+c);
+      f.setAttribute("type","linear");
+      f.setAttribute("slope","1.15");
+      brightTop.appendChild(f);
+    });
+    defs.appendChild(brightTop);
 
-            // Left face
-            const left = document.createElementNS(svgNS,"polygon");
-            left.setAttribute("class","face");
-            left.setAttribute("points","32 32,64 48,64 80,32 64");
-            left.setAttribute("fill","#8fb3a2");
-            left.setAttribute("filter","url(#bright-left)");
-            g.appendChild(left);
+    const brightLeft = document.createElementNS(svgNS,"filter");
+    brightLeft.setAttribute("id","bright-left");
+    ['R','G','B'].forEach(c=>{
+      const f = document.createElementNS(svgNS,"feFunc"+c);
+      f.setAttribute("type","linear");
+      f.setAttribute("slope","0.95");
+      brightLeft.appendChild(f);
+    });
+    defs.appendChild(brightLeft);
 
-            // Right face
-            const right = document.createElementNS(svgNS,"polygon");
-            right.setAttribute("class","face");
-            right.setAttribute("points","96 32,64 48,64 80,96 64 80");
-            right.setAttribute("fill","#8fb3a2");
-            right.setAttribute("filter","url(#bright-right)");
-            g.appendChild(right);
+    const brightRight = document.createElementNS(svgNS,"filter");
+    brightRight.setAttribute("id","bright-right");
+    ['R','G','B'].forEach(c=>{
+      const f = document.createElementNS(svgNS,"feFunc"+c);
+      f.setAttribute("type","linear");
+      f.setAttribute("slope","0.8");
+      brightRight.appendChild(f);
+    });
+    defs.appendChild(brightRight);
 
-            // Click to remove
-            g.addEventListener("click", () => g.remove());
+    // Create cubes
+    for (let z=0; z<size; z++){
+      for (let y=0; y<size; y++){
+        for (let x=0; x<size; x++){
+          const sx = Math.round(originX + (x - y) * (tileW/2));
+          const sy = Math.round(originY + (x + y) * (tileH/2) - z * levelHeight);
 
-            parent.appendChild(g);
-          }
+          const g = document.createElementNS(svgNS,"g");
+          g.setAttribute("transform", `translate(${sx},${sy})`);
+
+          // Depth filter
+          const filterId = createCubeFilter(x,y,z);
+          g.setAttribute("filter", `url(#${filterId})`);
+
+          // Top
+          const top = document.createElementNS(svgNS,"polygon");
+          top.setAttribute("points","64 16,96 32,64 48,32 32");
+          top.setAttribute("class","face");
+          top.setAttribute("fill","#8fb3a2");
+          top.setAttribute("filter","url(#bright-top)");
+          g.appendChild(top);
+
+          // Left
+          const left = document.createElementNS(svgNS,"polygon");
+          left.setAttribute("points","32 32,64 48,64 80,32 64");
+          left.setAttribute("class","face");
+          left.setAttribute("fill","#8fb3a2");
+          left.setAttribute("filter","url(#bright-left)");
+          g.appendChild(left);
+
+          // Right
+          const right = document.createElementNS(svgNS,"polygon");
+          right.setAttribute("points","96 32,64 48,64 80,96 64 80");
+          right.setAttribute("class","face");
+          right.setAttribute("fill","#8fb3a2");
+          right.setAttribute("filter","url(#bright-right)");
+          g.appendChild(right);
+
+          // Click to remove
+          g.addEventListener("click", ()=>g.remove());
+
+          svg.appendChild(g);
         }
       }
-    ]]></script>
-  </g>
+    }
+
+  ]]></script>
 </svg>
