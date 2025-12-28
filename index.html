@@ -70,6 +70,38 @@
       return id;
     }
 
+    function createTexturedFace(points, faceType, x, y, z, brightness) {
+      const patternId = `texture-${faceType}-${x}-${y}-${z}`;
+      const pattern = document.createElementNS(svgNS, "pattern");
+      pattern.setAttribute("id", patternId);
+      pattern.setAttribute("patternUnits", "userSpaceOnUse");
+      pattern.setAttribute("width", "100");
+      pattern.setAttribute("height", "100");
+
+      const image = document.createElementNS(svgNS, "image");
+      image.setAttribute("href", "IMG_5872.webp");
+      image.setAttribute("width", "100");
+      image.setAttribute("height", "100");
+      image.setAttribute("preserveAspectRatio", "none");
+
+      // Apply transform based on face type
+      if (faceType === 'top') {
+        // Top face: skew to match parallelogram
+        image.setAttribute("transform", "matrix(1, 0.4, -1, 0.4, 50, 0)");
+      } else if (faceType === 'left') {
+        // Left face: vertical with left skew
+        image.setAttribute("transform", "matrix(0.6, 0.8, 0, 1.2, 0, 0)");
+      } else if (faceType === 'right') {
+        // Right face: vertical with right skew
+        image.setAttribute("transform", "matrix(0.6, -0.8, 0, 1.2, 20, 40)");
+      }
+
+      pattern.appendChild(image);
+      defs.appendChild(pattern);
+
+      return patternId;
+    }
+
     for(let z=0; z<size; z++){
       for(let y=0; y<size; y++){
         for(let x=0; x<size; x++){
@@ -88,7 +120,8 @@
           const top = document.createElementNS(svgNS,"polygon");
           top.setAttribute("points",`${w} 0, ${w*2} ${h}, ${w} ${h*2}, 0 ${h}`);
           top.setAttribute("class","face");
-          top.setAttribute("fill","url(#texture)");
+          const topPatternId = createTexturedFace(top.getAttribute("points"), 'top', x, y, z, 1.15);
+          top.setAttribute("fill",`url(#${topPatternId})`);
           const fTop = createFaceFilter(x,y,z,1.15);
           top.setAttribute("filter",`url(#${fTop})`);
           g.appendChild(top);
@@ -97,7 +130,8 @@
           const left = document.createElementNS(svgNS,"polygon");
           left.setAttribute("points",`0 ${h}, ${w} ${h*2}, ${w} ${h*2+vHeight}, 0 ${h+vHeight}`);
           left.setAttribute("class","face");
-          left.setAttribute("fill","url(#texture)");
+          const leftPatternId = createTexturedFace(left.getAttribute("points"), 'left', x, y, z, 0.95);
+          left.setAttribute("fill",`url(#${leftPatternId})`);
           const fLeft = createFaceFilter(x,y,z,0.95);
           left.setAttribute("filter",`url(#${fLeft})`);
           g.appendChild(left);
@@ -106,7 +140,8 @@
           const right = document.createElementNS(svgNS,"polygon");
           right.setAttribute("points",`${w*2} ${h}, ${w} ${h*2}, ${w} ${h*2+vHeight}, ${w*2} ${h+vHeight}`);
           right.setAttribute("class","face");
-          right.setAttribute("fill","url(#texture)");
+          const rightPatternId = createTexturedFace(right.getAttribute("points"), 'right', x, y, z, 0.8);
+          right.setAttribute("fill",`url(#${rightPatternId})`);
           const fRight = createFaceFilter(x,y,z,0.8);
           right.setAttribute("filter",`url(#${fRight})`);
           g.appendChild(right);
