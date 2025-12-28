@@ -57,7 +57,8 @@
       turbulence.setAttribute("baseFrequency","1");
       turbulence.setAttribute("numOctaves","5");
       turbulence.setAttribute("result","noise");
-      //filter.appendChild(turbulence);
+      turbulence.setAttribute("stitchTiles","stitch");
+      filter.appendChild(turbulence);
 
 
       const sat = document.createElementNS(svgNS,"feColorMatrix");
