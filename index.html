@@ -1,12 +1,12 @@
 <svg width="600" height="600"
-     viewBox="-100 -100 600 600"
+     viewBox="0 0 600 600"
      xmlns="http://www.w3.org/2000/svg">
 
   <style>
     .cube {
+      cursor: pointer;
       --base: #8fb3a2;
       --outline: rgba(0,0,0,0.35);
-      cursor: pointer;
     }
     .face {
       stroke: var(--outline);
@@ -16,7 +16,7 @@
     }
   </style>
 
-  <!-- SVG filters for brightness -->
+  <!-- Brightness filters for faces -->
   <defs>
     <filter id="bright-top">
       <feComponentTransfer>
@@ -49,7 +49,7 @@
       const tileH = 32;
       const originX = 300;
       const originY = 50;
-      const levelHeight = 32; // vertical offset per z
+      const levelHeight = 32;
       const size = 5;
 
       const svgNS = "http://www.w3.org/2000/svg";
@@ -64,7 +64,13 @@
             const g = document.createElementNS(svgNS,"g");
             g.setAttribute("transform", `translate(${sx}, ${sy})`);
 
-            // top face
+            // Apply depth filters
+            const sat = 1 + x*0.01;  // saturation by X
+            const cont = 1 + y*0.01; // contrast by Y
+            const hue = z*3;         // hue-rotate by Z
+            g.setAttribute("style", `filter: saturate(${sat}) contrast(${cont}) hue-rotate(${hue}deg)`);
+
+            // Top face
             const top = document.createElementNS(svgNS,"polygon");
             top.setAttribute("class","face");
             top.setAttribute("points","64 16,96 32,64 48,32 32");
@@ -72,7 +78,7 @@
             top.setAttribute("filter","url(#bright-top)");
             g.appendChild(top);
 
-            // left face
+            // Left face
             const left = document.createElementNS(svgNS,"polygon");
             left.setAttribute("class","face");
             left.setAttribute("points","32 32,64 48,64 80,32 64");
@@ -80,7 +86,7 @@
             left.setAttribute("filter","url(#bright-left)");
             g.appendChild(left);
 
-            // right face
+            // Right face
             const right = document.createElementNS(svgNS,"polygon");
             right.setAttribute("class","face");
             right.setAttribute("points","96 32,64 48,64 80,96 64 80");
@@ -88,7 +94,7 @@
             right.setAttribute("filter","url(#bright-right)");
             g.appendChild(right);
 
-            // Click to remove cube
+            // Click to remove
             g.addEventListener("click", () => g.remove());
 
             parent.appendChild(g);
