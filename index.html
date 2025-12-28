@@ -106,7 +106,8 @@
       for (let y = 0; y < size; y++) {
         blockData[z][y] = [];
         for (let x = 0; x < size; x++) {
-          blockData[z][y][x] = { exists: true, color: "#708000" };
+          // Only fill the bottom layer (z === 0)
+          blockData[z][y][x] = { exists: z === 0, color: "#708000" };
         }
       }
     }
