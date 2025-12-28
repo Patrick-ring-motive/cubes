@@ -29,40 +29,40 @@
       const id = `f-${x}-${y}-${z}-${brightness}`;
       filter.setAttribute("id", id);
 
-      // Saturation
+      // Dramatic saturation
       const sat = document.createElementNS(svgNS,"feColorMatrix");
       sat.setAttribute("type","saturate");
-      sat.setAttribute("values", (1 + x*0.01).toFixed(3));
+      sat.setAttribute("values", (1 + x*0.15).toFixed(3));
       sat.setAttribute("result","saturated");
       filter.appendChild(sat);
 
-      // Contrast
+      // Dramatic contrast
       const contrast = document.createElementNS(svgNS,"feComponentTransfer");
       contrast.setAttribute("in","saturated");
       contrast.setAttribute("result","contrasted");
       ['R','G','B'].forEach(c=>{
         const func = document.createElementNS(svgNS,"feFunc"+c);
         func.setAttribute("type","linear");
-        func.setAttribute("slope",(1 + y*0.01).toFixed(3));
+        func.setAttribute("slope",(1 + y*0.15).toFixed(3));
         contrast.appendChild(func);
       });
       filter.appendChild(contrast);
 
-      // Hue rotation
+      // Dramatic hue rotation
       const hue = document.createElementNS(svgNS,"feColorMatrix");
       hue.setAttribute("in","contrasted");
       hue.setAttribute("type","hueRotate");
-      hue.setAttribute("values",(z*3).toFixed(1));
+      hue.setAttribute("values",(z*30).toFixed(1));
       hue.setAttribute("result","hued");
       filter.appendChild(hue);
 
-      // Brightness for face
+      // Face brightness
       const bright = document.createElementNS(svgNS,"feComponentTransfer");
       bright.setAttribute("in","hued");
       ['R','G','B'].forEach(c=>{
         const func = document.createElementNS(svgNS,"feFunc"+c);
         func.setAttribute("type","linear");
-        func.setAttribute("slope", brightness.toFixed(3));
+        func.setAttribute("slope",brightness.toFixed(3));
         bright.appendChild(func);
       });
       filter.appendChild(bright);
@@ -104,6 +104,7 @@
           right.setAttribute("filter",`url(#${fRight})`);
           g.appendChild(right);
 
+          // Click to remove
           g.addEventListener("click",()=>g.remove());
 
           svg.appendChild(g);
