@@ -51,6 +51,15 @@
       composite1.setAttribute("result","coloredShape");
       filter.appendChild(composite1);
 
+       // Add grain
+      const turbulence = document.createElementNS(svgNS,"feTurbulence");
+      turbulence.setAttribute("type","fractalNoise");
+      turbulence.setAttribute("baseFrequency","1");
+      turbulence.setAttribute("numOctaves","5");
+      turbulence.setAttribute("result","noise");
+      filter.appendChild(turbulence);
+
+
       const sat = document.createElementNS(svgNS,"feColorMatrix");
       sat.setAttribute("in","coloredShape");
       sat.setAttribute("type","saturate");
@@ -110,14 +119,7 @@
       blend.setAttribute("mode","overlay");
       filter.appendChild(blend);
 
-      // Add grain
-      const turbulence = document.createElementNS(svgNS,"feTurbulence");
-      turbulence.setAttribute("type","fractalNoise");
-      turbulence.setAttribute("baseFrequency","1");
-      turbulence.setAttribute("numOctaves","5");
-      turbulence.setAttribute("result","noise");
-      filter.appendChild(turbulence);
-
+     
       
       defs.appendChild(filter);
       return id;
