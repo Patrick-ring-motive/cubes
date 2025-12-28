@@ -79,12 +79,12 @@
       const bright = document.createElementNS(svgNS,"feComponentTransfer");
       bright.setAttribute("in","hued");
       bright.setAttribute("result","brightened");
-      ['R','G','B'].forEach(c=>{
+      for(const c of ['R','G','B']){
         const func = document.createElementNS(svgNS,"feFunc"+c);
         func.setAttribute("type","linear");
         func.setAttribute("slope",brightness.toFixed(3));
         bright.appendChild(func);
-      });
+      };
       filter.appendChild(bright);
 
       // Add grain
@@ -121,11 +121,11 @@
       return id;
     }
 
-    for(let z=0; z<size; z++){
-      for(let y=0; y<size; y++){
-        for(let x=0; x<size; x++){
-          const sx = Math.round(originX + x*(tileW*xScale) - y*(tileW*yScale));
-          const sy = Math.round(originY + x*(tileH*xScale) + y*(tileH*yScale) - z*levelHeight);
+    for(let z=0; z!==size; ++z){
+      for(let y=0; y!==size; ++y){
+        for(let x=0; x!==size; ++x){
+          const sx = (originX + x*(tileW*xScale) - y*(tileW*yScale));
+          const sy = (originY + x*(tileH*xScale) + y*(tileH*yScale) - z*levelHeight);
 
           const g = document.createElementNS(svgNS,"g");
           g.setAttribute("transform", `translate(${sx},${sy})`);
