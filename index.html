@@ -99,11 +99,34 @@
     const xScale = 0.935;
     const yScale = 0.935;
 
-    // Track existing blocks
-    const blocks = new Map();
+    // Track blocks in a 3D matrix
+    const blockData = [];
+    for (let z = 0; z < size; z++) {
+      blockData[z] = [];
+      for (let y = 0; y < size; y++) {
+        blockData[z][y] = [];
+        for (let x = 0; x < size; x++) {
+          blockData[z][y][x] = { exists: true, color: "#708000" };
+        }
+      }
+    }
 
-    function getBlockKey(x, y, z) {
-      return `${x},${y},${z}`;
+    function renderAllBlocks() {
+      // Clear all rendered blocks
+      const existingBlocks = svg.querySelectorAll('g[data-block]');
+      existingBlocks.forEach(block => block.remove());
+
+      // Render in correct order: back to front, bottom to top
+      for (let z = 0; z < size; z++) {
+        for (let y = 0; y < size; y++) {
+          for (let x = 0; x < size; x++) {
+            const block = blockData[z][y][x];
+            if (block.exists) {
+              renderBlock(x, y, z, block.color);
+            }
+          }
+        }
+      }
     }
 
     function createFaceFilter(x, y, z, brightness, color) {
@@ -199,19 +222,13 @@
       return filterId;
     }
 
-    function createBlock(x, y, z, color) {
-      const key = getBlockKey(x, y, z);
-      
-      // Remove existing block if present
-      if (blocks.has(key)) {
-        blocks.get(key).remove();
-      }
-
+    function renderBlock(x, y, z, color) {
       const sx = (originX + x*(tileW*xScale) - y*(tileW*yScale));
       const sy = (originY + x*(tileH*xScale) + y*(tileH*yScale) - z*levelHeight);
 
       const g = document.createElementNS(svgNS,"g");
       g.setAttribute("transform", `translate(${sx},${sy})`);
+      g.setAttribute("data-block", "true");
       g.dataset.x = x;
       g.dataset.y = y;
       g.dataset.z = z;
@@ -248,26 +265,19 @@
       g.addEventListener("click", (e) => {
         if (isAddMode) {
           // Add/replace block with selected color
-          createBlock(x, y, z, colorInput.value);
+          blockData[z][y][x] = { exists: true, color: colorInput.value };
         } else {
           // Remove block
-          g.remove();
-          blocks.delete(key);
+          blockData[z][y][x] = { exists: false, color: null };
         }
+        renderAllBlocks();
       });
 
       svg.appendChild(g);
-      blocks.set(key, g);
     }
 
     // Initialize grid
-    for(let z=0; z!==size; ++z){
-      for(let y=0; y!==size; ++y){
-        for(let x=0; x!==size; ++x){
-          createBlock(x, y, z, "#708000");
-        }
-      }
-    }
+    renderAllBlocks();
   /*]]>*/</script>
 
 </svg>
