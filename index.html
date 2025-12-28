@@ -1,5 +1,5 @@
 <svg width="600" height="600"
-     viewBox="0 0 600 600"
+     viewBox="-100 -100 600 600"
      xmlns="http://www.w3.org/2000/svg">
 
   <style>
@@ -65,9 +65,9 @@
             g.setAttribute("transform", `translate(${sx}, ${sy})`);
 
             // Apply depth filters
-            const sat = 1 + x*0.01;  // saturation by X
-            const cont = 1 + y*0.01; // contrast by Y
-            const hue = z*3;         // hue-rotate by Z
+            const sat = 1 + x*0.1;  // saturation by X
+            const cont = 1 + y*0.1; // contrast by Y
+            const hue = z*10;         // hue-rotate by Z
             g.setAttribute("style", `filter: saturate(${sat}) contrast(${cont}) hue-rotate(${hue}deg)`);
 
             // Top face
