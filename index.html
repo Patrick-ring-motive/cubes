@@ -40,7 +40,7 @@
 
       // Base color flood
       const flood = document.createElementNS(svgNS,"feFlood");
-      flood.setAttribute("flood-color","#8fb3a2");
+      flood.setAttribute("flood-color","#008000");
       flood.setAttribute("result","baseColor");
       filter.appendChild(flood);
 
@@ -61,12 +61,12 @@
       const contrast = document.createElementNS(svgNS,"feComponentTransfer");
       contrast.setAttribute("in","saturated");
       contrast.setAttribute("result","contrasted");
-      ['R','G','B'].forEach(c=>{
+      for(const c of ['R','G','B']){
         const func = document.createElementNS(svgNS,"feFunc"+c);
         func.setAttribute("type","linear");
         func.setAttribute("slope",(1 + y*0.05).toFixed(3));
         contrast.appendChild(func);
-      });
+      };
       filter.appendChild(contrast);
 
       const hue = document.createElementNS(svgNS,"feColorMatrix");
