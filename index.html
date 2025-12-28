@@ -40,7 +40,7 @@
 
       // Base color flood
       const flood = document.createElementNS(svgNS,"feFlood");
-      flood.setAttribute("flood-color","#008000");
+      flood.setAttribute("flood-color","#108000");
       flood.setAttribute("result","baseColor");
       filter.appendChild(flood);
 
@@ -90,7 +90,7 @@
       // Add grain
       const turbulence = document.createElementNS(svgNS,"feTurbulence");
       turbulence.setAttribute("type","fractalNoise");
-      turbulence.setAttribute("baseFrequency","1.2");
+      turbulence.setAttribute("baseFrequency","1.3");
       turbulence.setAttribute("numOctaves","5");
       turbulence.setAttribute("result","noise");
       filter.appendChild(turbulence);
