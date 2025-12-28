@@ -1,11 +1,7 @@
-<svg width="600" height="600" viewBox="-100 -100 700 700" xmlns="http://www.w3.org/2000/svg">
+<svg width="600" height="600" viewBox="-200 -200 900 900" xmlns="http://www.w3.org/2000/svg">
   <style>
     .face {
-      stroke: rgba(0,0,0,0.35);
-      stroke-width: 1;
-      stroke-linejoin: round;
-      vector-effect: non-scaling-stroke;
-      fill: #8fb3a2;
+      stroke: none;
       cursor: pointer;
     }
   </style>
@@ -42,7 +38,21 @@
       const id = `f-${x}-${y}-${z}-${brightness}`;
       filter.setAttribute("id", id);
 
+      // Base color flood
+      const flood = document.createElementNS(svgNS,"feFlood");
+      flood.setAttribute("flood-color","#8fb3a2");
+      flood.setAttribute("result","baseColor");
+      filter.appendChild(flood);
+
+      const composite1 = document.createElementNS(svgNS,"feComposite");
+      composite1.setAttribute("in","baseColor");
+      composite1.setAttribute("in2","SourceAlpha");
+      composite1.setAttribute("operator","in");
+      composite1.setAttribute("result","coloredShape");
+      filter.appendChild(composite1);
+
       const sat = document.createElementNS(svgNS,"feColorMatrix");
+      sat.setAttribute("in","coloredShape");
       sat.setAttribute("type","saturate");
       sat.setAttribute("values", (1 + x*0.05).toFixed(3));
       sat.setAttribute("result","saturated");
@@ -68,6 +78,7 @@
 
       const bright = document.createElementNS(svgNS,"feComponentTransfer");
       bright.setAttribute("in","hued");
+      bright.setAttribute("result","brightened");
       ['R','G','B'].forEach(c=>{
         const func = document.createElementNS(svgNS,"feFunc"+c);
         func.setAttribute("type","linear");
@@ -79,8 +90,8 @@
       // Add grain
       const turbulence = document.createElementNS(svgNS,"feTurbulence");
       turbulence.setAttribute("type","fractalNoise");
-      turbulence.setAttribute("baseFrequency","0.9");
-      turbulence.setAttribute("numOctaves","4");
+      turbulence.setAttribute("baseFrequency","1.2");
+      turbulence.setAttribute("numOctaves","5");
       turbulence.setAttribute("result","noise");
       filter.appendChild(turbulence);
 
@@ -96,11 +107,12 @@
       componentTransfer.setAttribute("result","theNoise");
       const funcA = document.createElementNS(svgNS,"feFuncA");
       funcA.setAttribute("type","table");
-      funcA.setAttribute("tableValues","0 0 0.05 0");
+      funcA.setAttribute("tableValues","0 0 0.15 0");
       componentTransfer.appendChild(funcA);
       filter.appendChild(componentTransfer);
 
       const blend = document.createElementNS(svgNS,"feBlend");
+      blend.setAttribute("in","brightened");
       blend.setAttribute("in2","theNoise");
       blend.setAttribute("mode","multiply");
       filter.appendChild(blend);
