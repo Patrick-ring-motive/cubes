@@ -325,55 +325,83 @@
       top.setAttribute("class","face");
       const fTop = createFaceFilter(x,y,z,1.15,color);
       top.setAttribute("filter",`url(#${fTop})`);
+      top.dataset.face = "top";
       g.appendChild(top);
 
-      // Left face
+      // Left face (lighter one going down-left)
       const left = document.createElementNS(svgNS,"polygon");
       left.setAttribute("points",`0 ${h}, ${w} ${h*2}, ${w} ${h*2+vHeight}, 0 ${h+vHeight}`);
       left.setAttribute("class","face");
       const fLeft = createFaceFilter(x,y,z,0.95,color);
       left.setAttribute("filter",`url(#${fLeft})`);
+      left.dataset.face = "left";
       g.appendChild(left);
 
-      // Right face
+      // Right face (darker one going down-right)
       const right = document.createElementNS(svgNS,"polygon");
       right.setAttribute("points",`${w*2} ${h}, ${w} ${h*2}, ${w} ${h*2+vHeight}, ${w*2} ${h+vHeight}`);
       right.setAttribute("class","face");
       const fRight = createFaceFilter(x,y,z,0.8,color);
       right.setAttribute("filter",`url(#${fRight})`);
+      right.dataset.face = "right";
       g.appendChild(right);
 
-      // Click handler based on current mode
-      g.addEventListener("click", (e) => {
+      // Click handler based on current mode and face
+      const clickHandler = (e) => {
+        e.stopPropagation();
+        const face = e.target.dataset.face;
+        
         if (isAddMode) {
-          // Find adjacent empty space to place new block
-          // Priority: top (z+1), then check horizontally
           let placed = false;
           
-          // Try placing on top first
-          if (z + 1 < size && !blockData[z + 1][y][x].exists) {
-            blockData[z + 1][y][x] = { exists: true, color: colorInput.value };
-            placed = true;
+          // Place based on which face was clicked
+          if (face === "top") {
+            // Top face clicked - place above (z+1)
+            if (z + 1 < size && !blockData[z + 1][y][x].exists) {
+              blockData[z + 1][y][x] = { exists: true, color: colorInput.value };
+              placed = true;
+            }
+          } else if (face === "left") {
+            // Left face (lighter, going down-left) - place away from viewer (+y)
+            if (y + 1 < size && !blockData[z][y + 1][x].exists) {
+              blockData[z][y + 1][x] = { exists: true, color: colorInput.value };
+              placed = true;
+            }
+          } else if (face === "right") {
+            // Right face (darker, going down-right) - place to the right (+x)
+            if (x + 1 < size && !blockData[z][y][x + 1].exists) {
+              blockData[z][y][x + 1] = { exists: true, color: colorInput.value };
+              placed = true;
+            }
           }
-          // Try +x direction
-          else if (!placed && x + 1 < size && !blockData[z][y][x + 1].exists) {
-            blockData[z][y][x + 1] = { exists: true, color: colorInput.value };
-            placed = true;
-          }
-          // Try -y direction
-          else if (!placed && y - 1 >= 0 && !blockData[z][y - 1][x].exists) {
-            blockData[z][y - 1][x] = { exists: true, color: colorInput.value };
-            placed = true;
-          }
-          // Try -x direction
-          else if (!placed && x - 1 >= 0 && !blockData[z][y][x - 1].exists) {
-            blockData[z][y][x - 1] = { exists: true, color: colorInput.value };
-            placed = true;
-          }
-          // Try +y direction
-          else if (!placed && y + 1 < size && !blockData[z][y + 1][x].exists) {
-            blockData[z][y + 1][x] = { exists: true, color: colorInput.value };
-            placed = true;
+          
+          // Fallback: if face placement failed, try other adjacent spaces
+          if (!placed) {
+            // Try placing on top first
+            if (z + 1 < size && !blockData[z + 1][y][x].exists) {
+              blockData[z + 1][y][x] = { exists: true, color: colorInput.value };
+              placed = true;
+            }
+            // Try +x direction
+            else if (x + 1 < size && !blockData[z][y][x + 1].exists) {
+              blockData[z][y][x + 1] = { exists: true, color: colorInput.value };
+              placed = true;
+            }
+            // Try -y direction
+            else if (y - 1 >= 0 && !blockData[z][y - 1][x].exists) {
+              blockData[z][y - 1][x] = { exists: true, color: colorInput.value };
+              placed = true;
+            }
+            // Try -x direction
+            else if (x - 1 >= 0 && !blockData[z][y][x - 1].exists) {
+              blockData[z][y][x - 1] = { exists: true, color: colorInput.value };
+              placed = true;
+            }
+            // Try +y direction
+            else if (y + 1 < size && !blockData[z][y + 1][x].exists) {
+              blockData[z][y + 1][x] = { exists: true, color: colorInput.value };
+              placed = true;
+            }
           }
           
           if (placed) {
@@ -384,7 +412,11 @@
           blockData[z][y][x] = { exists: false, color: null };
           renderAllBlocks();
         }
-      });
+      };
+
+      top.addEventListener("click", clickHandler);
+      left.addEventListener("click", clickHandler);
+      right.addEventListener("click", clickHandler);
 
       svg.appendChild(g);
     }
