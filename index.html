@@ -1,18 +1,21 @@
-<svg width="700" height="700" viewBox="-200 -200 900 900" xmlns="http://www.w3.org/2000/svg">
+<svg width="600" height="600" viewBox="-100 -100 700 700" xmlns="http://www.w3.org/2000/svg">
   <style>
     .face {
       stroke: rgba(0,0,0,0.35);
       stroke-width: 1;
       stroke-linejoin: round;
       vector-effect: non-scaling-stroke;
-      fill: #8fb3a2;
       cursor: pointer;
     }
   </style>
 
-<defs id="filters"></defs>
+  <defs id="filters">
+    <pattern id="texture" patternUnits="userSpaceOnUse" width="200" height="200">
+      <image href="IMG_5872.webp" x="0" y="0" width="200" height="200" preserveAspectRatio="xMidYMid slice"/>
+    </pattern>
+  </defs>
 
-  <script type="application/ecmascript">/*<![CDATA[/**/
+  <script type="application/ecmascript"><![CDATA[
     const svgNS = "http://www.w3.org/2000/svg";
     const defs = document.getElementById("filters");
     const svg = document.currentScript.parentNode;
@@ -89,6 +92,7 @@
           const top = document.createElementNS(svgNS,"polygon");
           top.setAttribute("points",`${w} 0, ${w*2} ${h}, ${w} ${h*2}, 0 ${h}`);
           top.setAttribute("class","face");
+          top.setAttribute("fill","url(#texture)");
           const fTop = createFaceFilter(x,y,z,1.15);
           top.setAttribute("filter",`url(#${fTop})`);
           g.appendChild(top);
@@ -97,6 +101,7 @@
           const left = document.createElementNS(svgNS,"polygon");
           left.setAttribute("points",`0 ${h}, ${w} ${h*2}, ${w} ${h*2+vHeight}, 0 ${h+vHeight}`);
           left.setAttribute("class","face");
+          left.setAttribute("fill","url(#texture)");
           const fLeft = createFaceFilter(x,y,z,0.95);
           left.setAttribute("filter",`url(#${fLeft})`);
           g.appendChild(left);
@@ -105,6 +110,7 @@
           const right = document.createElementNS(svgNS,"polygon");
           right.setAttribute("points",`${w*2} ${h}, ${w} ${h*2}, ${w} ${h*2+vHeight}, ${w*2} ${h+vHeight}`);
           right.setAttribute("class","face");
+          right.setAttribute("fill","url(#texture)");
           const fRight = createFaceFilter(x,y,z,0.8);
           right.setAttribute("filter",`url(#${fRight})`);
           g.appendChild(right);
@@ -115,6 +121,6 @@
         }
       }
     }
-  /*]]>*/</script>
+  ]]></script>
 
 </svg>
