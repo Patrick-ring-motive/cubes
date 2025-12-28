@@ -1,4 +1,4 @@
-<svg width="600" height="600" viewBox="-100 -100 700 700" xmlns="http://www.w3.org/2000/svg">
+<svg width="600" height="600" viewBox="-200 -200 800 800" xmlns="http://www.w3.org/2000/svg">
   <style>
     .face {
       stroke: rgba(0,0,0,0.35);
@@ -10,7 +10,7 @@
     }
   </style>
 
-  <defs id="filters"></defs>
+<defs id="filters"></defs>
 
   <script type="application/ecmascript"><![CDATA[
     const svgNS = "http://www.w3.org/2000/svg";
@@ -19,24 +19,26 @@
 
     const size = 5;
     const tileW = 64;
-    const tileH = 32;
+    const tileH = 24; // Reduced for dimetric
     const originX = 300;
-    const originY = 50;
-    const levelHeight = 32;
+    const originY = 100;
+    const levelHeight = 40;
+
+    // Dimetric projection angles (7:42:42 ratio)
+    const xScale = 0.935; // Right axis scaling
+    const yScale = 0.935; // Left axis scaling
 
     function createFaceFilter(x, y, z, brightness) {
       const filter = document.createElementNS(svgNS,"filter");
       const id = `f-${x}-${y}-${z}-${brightness}`;
       filter.setAttribute("id", id);
 
-      // Subtle saturation
       const sat = document.createElementNS(svgNS,"feColorMatrix");
       sat.setAttribute("type","saturate");
       sat.setAttribute("values", (1 + x*0.05).toFixed(3));
       sat.setAttribute("result","saturated");
       filter.appendChild(sat);
 
-      // Subtle contrast
       const contrast = document.createElementNS(svgNS,"feComponentTransfer");
       contrast.setAttribute("in","saturated");
       contrast.setAttribute("result","contrasted");
@@ -48,7 +50,6 @@
       });
       filter.appendChild(contrast);
 
-      // Subtle hue rotation
       const hue = document.createElementNS(svgNS,"feColorMatrix");
       hue.setAttribute("in","contrasted");
       hue.setAttribute("type","hueRotate");
@@ -56,7 +57,6 @@
       hue.setAttribute("result","hued");
       filter.appendChild(hue);
 
-      // Face brightness
       const bright = document.createElementNS(svgNS,"feComponentTransfer");
       bright.setAttribute("in","hued");
       ['R','G','B'].forEach(c=>{
@@ -74,37 +74,41 @@
     for(let z=0; z<size; z++){
       for(let y=0; y<size; y++){
         for(let x=0; x<size; x++){
-          const sx = Math.round(originX + (x - y)*(tileW/2));
-          const sy = Math.round(originY + (x + y)*(tileH/2) - z*levelHeight);
+          const sx = Math.round(originX + x*(tileW*xScale) - y*(tileW*yScale));
+          const sy = Math.round(originY + x*(tileH*xScale) + y*(tileH*yScale) - z*levelHeight);
 
           const g = document.createElementNS(svgNS,"g");
           g.setAttribute("transform", `translate(${sx},${sy})`);
 
-          // Top
+          // Dimetric tile dimensions
+          const w = tileW * xScale;
+          const h = tileH * yScale;
+          const vHeight = levelHeight;
+
+          // Top face (parallelogram)
           const top = document.createElementNS(svgNS,"polygon");
-          top.setAttribute("points","64 16,96 32,64 48,32 32");
+          top.setAttribute("points",`${w} 0, ${w*2} ${h}, ${w} ${h*2}, 0 ${h}`);
           top.setAttribute("class","face");
           const fTop = createFaceFilter(x,y,z,1.15);
           top.setAttribute("filter",`url(#${fTop})`);
           g.appendChild(top);
 
-          // Left
+          // Left face
           const left = document.createElementNS(svgNS,"polygon");
-          left.setAttribute("points","32 32,64 48,64 80,32 64");
+          left.setAttribute("points",`0 ${h}, ${w} ${h*2}, ${w} ${h*2+vHeight}, 0 ${h+vHeight}`);
           left.setAttribute("class","face");
           const fLeft = createFaceFilter(x,y,z,0.95);
           left.setAttribute("filter",`url(#${fLeft})`);
           g.appendChild(left);
 
-          // Right
+          // Right face
           const right = document.createElementNS(svgNS,"polygon");
-          right.setAttribute("points","96 32,64 48,64 80,96 64 80");
+          right.setAttribute("points",`${w*2} ${h}, ${w} ${h*2}, ${w} ${h*2+vHeight}, ${w*2} ${h+vHeight}`);
           right.setAttribute("class","face");
           const fRight = createFaceFilter(x,y,z,0.8);
           right.setAttribute("filter",`url(#${fRight})`);
           g.appendChild(right);
 
-          // Click to remove
           g.addEventListener("click",()=>g.remove());
 
           svg.appendChild(g);
@@ -112,4 +116,5 @@
       }
     }
   ]]></script>
+
 </svg>
