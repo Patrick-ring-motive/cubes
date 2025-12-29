@@ -137,13 +137,15 @@
             const stateBlocks = state.blocks;
             const stateBlocksLength = stateBlocks.length;
             for (let z = 0; z !== size && z !== stateBlocksLength; ++z) {
+              const blockDataZ = blockData[z];
               const stateBlocksZ = stateBlocks[z];
               const stateBlocksZLength = stateBlocksZ.length;
               for (let y = 0; y !== size && y !== stateBlocksZLength; ++y) {
+                const blockDataZY = blockDataZ[y];
                 const stateBlocksZY = stateBlocksZ[y];
                 const stateBlocksZYLength = stateBlocksZY.length;
                 for (let x = 0; x !== size && x !== stateBlocksZYLength; ++x) {
-                  blockData[z][y][x] = stateBlocksZY[x];
+                  blockDataZY[x] = stateBlocksZY[x];
                 }
               }
             }
