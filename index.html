@@ -533,12 +533,15 @@
     const nextIdle = () => new Promise(resolve => callback(resolve));
     const svg = document.querySelector('svg');
     const svgClientWidth = svg.clientWidth;
-    let size = window.innerWidth / svgClientWidth;
-    const margin = window.innerWidth - svgClientWidth;
-    const scale = `scale(${size})`;// translate(${margin/size}px,${margin/size}px)`;
-    
-    if(svg.style.transform != scale){
-      svg.style.transform = scale;
+    while(true){
+      const size = window.innerWidth / svgClientWidth;
+      const margin = window.innerWidth - svgClientWidth;
+      const scale = `scale(${size})`;// translate(${margin/size}px,${margin/size}px)`;
+      if(svg.style.transform != scale){
+        svg.style.transform = scale;
+      }
+      await sleep(100);
+      await nextIdle();
     }
   })();
 </script>
