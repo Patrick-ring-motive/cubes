@@ -535,8 +535,8 @@
     const svgClientWidth = svg.clientWidth;
     while(true){
       const size = window.innerWidth / svgClientWidth;
-      const margin = window.innerWidth - svgClientWidth;
-      const scale = `scale(${size})`;// translate(${margin/size}px,${margin/size}px)`;
+      const margin = (window.innerWidth - svgClientWidth)/2;
+      const scale = `scale(${size}) translate(${margin/size}px,${margin/size}px)`;
       if(svg.style.transform != scale){
         svg.style.transform = scale;
       }
