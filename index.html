@@ -214,7 +214,7 @@
           const newBlockDataZY = newBlockDataZ[y];
           for (let x = 0; x !== size; ++x) {
             // Clockwise: new[z][y][x] = old[z][size-1-x][y]
-            newBlockDataZY[x] = blockDataZ[size_1 - x][y];
+            newBlockDataZY[x] = blockDataZ[size - 1 - x][y];
           }
         }
       }
