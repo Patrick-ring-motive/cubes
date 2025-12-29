@@ -276,13 +276,16 @@
     function renderAllBlocks() {
       // Clear all rendered blocks
       const existingBlocks = svg.querySelectorAll('g[data-block]');
-      existingBlocks.forEach(block => block.remove());
-
+      for(const block of existingBlocks){
+        block.remove();
+      }
       // Render in correct order: back to front, bottom to top
-      for (let z = 0; z < size; z++) {
-        for (let y = 0; y < size; y++) {
-          for (let x = 0; x < size; x++) {
-            const block = blockData[z][y][x];
+      for (let z = 0; z !== size; ++z) {
+        const blockDataZ = blockData[z];
+        for (let y = 0; y !== size; ++y) {
+          const blockDataZY = blockDataZ[y];
+          for (let x = 0; x !== size; ++x) {
+            const block = blockDataZY[x];
             if (block.exists) {
               renderBlock(x, y, z, block.color);
             }
