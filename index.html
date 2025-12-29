@@ -134,7 +134,7 @@
           const state = JSON.parse(saved);
           if (state.blocks && Array.isArray(state.blocks)) {
             // Copy loaded data into blockData
-            const stateBlocks = stste.blocks(
+            const stateBlocks = state.blocks;
             const stateBlocksLength = stateBlocks.length;
             for (let z = 0; z !== size && z !== stateBlocksLength; ++z) {
               const stateBlocksZ = stateBlocks[z];
