@@ -534,10 +534,12 @@
     const svg = document.querySelector('svg');
     const svgClientWidth = svg.clientWidth;
     const svgClientHeight = svg.clientHeight;
+    const defalutZoom = window.devicePixelRatio;
     while(true){
-      const size = window.innerWidth / svgClientWidth;
       const marginX = (window.innerWidth - svgClientWidth)/2.2;
       const marginY = (window.innerWidth - svgClientHeight)/2;
+      const ratio = window.devicePixelRatio/defaultZoom;
+      const size = ratio * window.innerWidth / svgClientWidth;
       const scale = `scale(${0.8*size}) translateX(${marginX/size}px) translateY(${marginY/size}px)`;
       if(svg.style.transform != scale){
         svg.style.transform = scale;
