@@ -517,3 +517,10 @@
   /*]]>*/</script>
 
 </svg>
+<script defer>
+  (()=>{
+    const svg = document.querySelector('svg');
+    const scale = document.body.clientWidth/svg.clientWidth;
+    svg.style.transform = `scale(${scale})`;
+  })();
+</script>
