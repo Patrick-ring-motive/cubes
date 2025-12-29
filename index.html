@@ -220,9 +220,9 @@
       }
       
       // Copy back
-      for (let z = 0; z < size; z++) {
-        for (let y = 0; y < size; y++) {
-          for (let x = 0; x < size; x++) {
+      for (let z = 0; z !== size; ++z) {
+        for (let y = 0; y !== size; ++y) {
+          for (let x = 0; x !== size; ++x) {
             blockData[z][y][x] = newBlockData[z][y][x];
           }
         }
@@ -231,11 +231,11 @@
 
     function rotateDataCounterClockwise() {
       const newBlockData = [];
-      for (let z = 0; z < size; z++) {
+      for (let z = 0; z !== size; ++z) {
         newBlockData[z] = [];
-        for (let y = 0; y < size; y++) {
+        for (let y = 0; y !== size; ++y) {
           newBlockData[z][y] = [];
-          for (let x = 0; x < size; x++) {
+          for (let x = 0; x !== size; ++x) {
             // Counter-clockwise: new[z][y][x] = old[z][x][size-1-y]
             newBlockData[z][y][x] = blockData[z][x][size - 1 - y];
           }
@@ -243,9 +243,9 @@
       }
       
       // Copy back
-      for (let z = 0; z < size; z++) {
-        for (let y = 0; y < size; y++) {
-          for (let x = 0; x < size; x++) {
+      for (let z = 0; z !== size; ++z) {
+        for (let y = 0; y !== size; ++y) {
+          for (let x = 0; x !== size; ++x) {
             blockData[z][y][x] = newBlockData[z][y][x];
           }
         }
@@ -264,11 +264,11 @@
 
     // Track blocks in a 3D matrix
     const blockData = [];
-    for (let z = 0; z < size; z++) {
+    for (let z = 0; z !== size; ++z) {
       blockData[z] = [];
-      for (let y = 0; y < size; y++) {
+      for (let y = 0; y !== size; ++y) {
         blockData[z][y] = [];
-        for (let x = 0; x < size; x++) {
+        for (let x = 0; x !== size; ++x) {
           // Only fill the bottom layer (z === 0)
           blockData[z][y][x] = { exists: z === 0, color: "#008000" };
         }
