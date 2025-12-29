@@ -231,13 +231,18 @@
 
     function rotateDataCounterClockwise() {
       const newBlockData = [];
+      const size_1 = size - 1;
       for (let z = 0; z !== size; ++z) {
+        const blockDataZ = blockData[z];
         newBlockData[z] = [];
+        newBlockDataZ = newBlockData[z];
         for (let y = 0; y !== size; ++y) {
-          newBlockData[z][y] = [];
+          newBlockDataZ[y] = [];
+          newBlockDataZY = newBlockDataZ[y];
+          const size_1_y = size_1 - y;
           for (let x = 0; x !== size; ++x) {
             // Counter-clockwise: new[z][y][x] = old[z][x][size-1-y]
-            newBlockData[z][y][x] = blockData[z][x][size - 1 - y];
+            newBlockDataZY[x] = blockData[z][x][size_1_y];
           }
         }
       }
