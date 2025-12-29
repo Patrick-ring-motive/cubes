@@ -266,11 +266,13 @@
     const blockData = [];
     for (let z = 0; z !== size; ++z) {
       blockData[z] = [];
+      const blockDataZ = blockData[z];
       for (let y = 0; y !== size; ++y) {
-        blockData[z][y] = [];
+        blockDataZ[y] = [];
+        blockDataZY = blockDataZ[y];
         for (let x = 0; x !== size; ++x) {
           // Only fill the bottom layer (z === 0)
-          blockData[z][y][x] = { exists: z === 0, color: "#008000" };
+          blockDataZY[x] = { exists: z === 0, color: "#008000" };
         }
       }
     }
@@ -396,9 +398,10 @@
       const g = document.createElementNS(svgNS,"g");
       g.setAttribute("transform", `translate(${sx},${sy})`);
       g.setAttribute("data-block", "true");
-      g.dataset.x = x;
-      g.dataset.y = y;
-      g.dataset.z = z;
+      const gDataset = g.dataset;
+      gDataset.x = x;
+      gDataset.y = y;
+      gDataset.z = z;
 
       const w = tileW * xScale;
       const h = tileH * yScale;
