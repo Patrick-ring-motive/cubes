@@ -539,7 +539,7 @@
     while(true){
       const marginX = (window.innerWidth - svgClientWidth)/2.2;
       const marginY = (window.innerWidth - svgClientHeight)/2;
-      const mobileRatio = (window.visualViewport?.scale || 1) / defaultMobileRatio;
+      const mobileRatio = (window.visualViewport?.scale || 1) / defaultMobileZoom;
       const ratio = mobileRatio * window.devicePixelRatio / defaultZoom;
       const size = ratio * window.innerWidth / svgClientWidth;
       const scale = `scale(${0.8*size}) translateX(${marginX/size}px) translateY(${marginY/size}px)`;
