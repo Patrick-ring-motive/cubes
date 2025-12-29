@@ -203,31 +203,23 @@
     });
 
     function rotateDataClockwise() {
-      const size_1 = size - 1;
       const newBlockData = [];
       for (let z = 0; z !== size; ++z) {
         newBlockData[z] = [];
-        const blockDataZ = blockData[z];
-        const newBlockDataZ = newBlockData[z];
         for (let y = 0; y !== size; ++y) {
-          const newBlockDataZ[y] = [];
-          const newBlockDataZY = newBlockDataZ[y];
+          newBlockData[z][y] = [];
           for (let x = 0; x !== size; ++x) {
             // Clockwise: new[z][y][x] = old[z][size-1-x][y]
-            newBlockDataZY[x] = blockDataZ[size - 1 - x][y];
+            newBlockData[z][y][x] = blockData[z][size - 1 - x][y];
           }
         }
       }
       
       // Copy back
-      for (let z = 0; z !== size; ++z) {
-        const blockDataZ = blockData[z];
-        const newBlockDataZ = newBlockData[z];
-        for (let y = 0; y !== size; ++y) {
-          const blockDataZY = blockDataZ[y];
-          const newBlockDataZY = newBlockDataZ[y];
-          for (let x = 0; x !== size; ++x) {
-            blockDataZY[x] = newBlockDataZY[x];
+      for (let z = 0; z < size; z++) {
+        for (let y = 0; y < size; y++) {
+          for (let x = 0; x < size; x++) {
+            blockData[z][y][x] = newBlockData[z][y][x];
           }
         }
       }
