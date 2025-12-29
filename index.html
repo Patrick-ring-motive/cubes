@@ -84,7 +84,7 @@
   <foreignObject x="-200" y="-200" width="300" height="200">
     <div xmlns="http://www.w3.org/1999/xhtml" id="controls">
       <label for="colorInput">Block Color:</label>
-      <input type="color" id="colorInput" value="#708000"/>
+      <input type="color" id="colorInput" value="#008000"/>
       <button id="modeToggle" class="add">Mode: Add Blocks</button>
       <div class="rotate-controls">
         <button id="rotateLeft" class="rotate-btn">↺ Rotate Left</button>
@@ -156,7 +156,7 @@
       for (let z = 0; z !== size; ++z) {
         for (let y = 0; y !== size; ++y) {
           for (let x = 0; x !== size; ++x) {
-            blockData[z][y][x] = { exists: z === 0, color: "#708000" };
+            blockData[z][y][x] = { exists: z === 0, color: "#008000" };
           }
         }
       }
@@ -260,7 +260,7 @@
         blockData[z][y] = [];
         for (let x = 0; x < size; x++) {
           // Only fill the bottom layer (z === 0)
-          blockData[z][y][x] = { exists: z === 0, color: "#708000" };
+          blockData[z][y][x] = { exists: z === 0, color: "#008000" };
         }
       }
     }
