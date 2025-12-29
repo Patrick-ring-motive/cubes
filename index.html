@@ -134,10 +134,16 @@
           const state = JSON.parse(saved);
           if (state.blocks && Array.isArray(state.blocks)) {
             // Copy loaded data into blockData
-            for (let z = 0; z !== size && z !== state.blocks.length; ++z) {
-              for (let y = 0; y !== size && y !== state.blocks[z].length; ++y) {
-                for (let x = 0; x !== size && x !== state.blocks[z][y].length; ++x) {
-                  blockData[z][y][x] = state.blocks[z][y][x];
+            const stateBlocks = stste.blocks(
+            const stateBlocksLength = stateBlocks.length;
+            for (let z = 0; z !== size && z !== stateBlocksLength; ++z) {
+              const stateBlocksZ = stateBlocks[z];
+              const stateBlocksZLength = stateBlocksZ.length;
+              for (let y = 0; y !== size && y !== stateBlocksZLength; ++y) {
+                const stateBlocksZY = stateBlocksZ[y];
+                const stateBlocksZYLength = stateBlocksZY.length;
+                for (let x = 0; x !== size && x !== stateBlocksZYLength; ++x) {
+                  blockData[z][y][x] = stateBlocksZY[x];
                 }
               }
             }
