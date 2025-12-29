@@ -64,9 +64,21 @@
       justify-content: space-between;
       margin-top: 5px;
     }
+    #resetBtn {
+      width: 100%;
+      padding: 8px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 14px;
+      background-color: #FF9800;
+      color: white;
+      margin-top: 5px;
+    }
   </style>
 
-  <foreignObject x="-200" y="-200" width="300" height="160">
+  <foreignObject x="-200" y="-200" width="300" height="200">
     <div xmlns="http://www.w3.org/1999/xhtml" id="controls">
       <label for="colorInput">Block Color:</label>
       <input type="color" id="colorInput" value="#708000"/>
@@ -75,6 +87,7 @@
         <button id="rotateLeft" class="rotate-btn">↺ Rotate Left</button>
         <button id="rotateRight" class="rotate-btn">Rotate Right ↻</button>
       </div>
+      <button id="resetBtn">Reset Grid</button>
     </div>
   </foreignObject>
 
@@ -97,8 +110,62 @@
     const modeToggle = document.getElementById("modeToggle");
     const rotateLeftBtn = document.getElementById("rotateLeft");
     const rotateRightBtn = document.getElementById("rotateRight");
+    const resetBtn = document.getElementById("resetBtn");
 
     let isAddMode = true;
+
+    // Save state to localStorage
+    function saveState() {
+      const state = {
+        blocks: blockData,
+        color: colorInput.value
+      };
+      localStorage.setItem('dimetricGrid', JSON.stringify(state));
+    }
+
+    // Load state from localStorage
+    function loadState() {
+      const saved = localStorage.getItem('dimetricGrid');
+      if (saved) {
+        try {
+          const state = JSON.parse(saved);
+          if (state.blocks && Array.isArray(state.blocks)) {
+            // Copy loaded data into blockData
+            for (let z = 0; z < size && z < state.blocks.length; z++) {
+              for (let y = 0; y < size && y < state.blocks[z].length; y++) {
+                for (let x = 0; x < size && x < state.blocks[z][y].length; x++) {
+                  blockData[z][y][x] = state.blocks[z][y][x];
+                }
+              }
+            }
+          }
+          if (state.color) {
+            colorInput.value = state.color;
+          }
+        } catch (e) {
+          console.error('Error loading state:', e);
+        }
+      }
+    }
+
+    // Reset grid to initial state
+    function resetGrid() {
+      for (let z = 0; z < size; z++) {
+        for (let y = 0; y < size; y++) {
+          for (let x = 0; x < size; x++) {
+            blockData[z][y][x] = { exists: z === 0, color: "#708000" };
+          }
+        }
+      }
+      saveState();
+      renderAllBlocks();
+    }
+
+    resetBtn.addEventListener("click", () => {
+      if (confirm("Reset the grid to its initial state?")) {
+        resetGrid();
+      }
+    });
 
     // Toggle between add and remove modes
     modeToggle.addEventListener("click", () => {
@@ -116,12 +183,14 @@
     rotateLeftBtn.addEventListener("click", () => {
       rotateDataCounterClockwise();
       renderAllBlocks();
+      saveState();
     });
 
     // Rotate right (clockwise) - rotate data +90 degrees
     rotateRightBtn.addEventListener("click", () => {
       rotateDataClockwise();
       renderAllBlocks();
+      saveState();
     });
 
     function rotateDataClockwise() {
@@ -406,11 +475,13 @@
           
           if (placed) {
             renderAllBlocks();
+            saveState();
           }
         } else {
           // Remove block
           blockData[z][y][x] = { exists: false, color: null };
           renderAllBlocks();
+          saveState();
         }
       };
 
@@ -422,6 +493,7 @@
     }
 
     // Initialize grid
+    loadState();
     renderAllBlocks();
   /*]]>*/</script>
 
