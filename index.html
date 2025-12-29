@@ -162,9 +162,11 @@
     // Reset grid to initial state
     function resetGrid() {
       for (let z = 0; z !== size; ++z) {
+        const blockDataZ = blockData[z];
         for (let y = 0; y !== size; ++y) {
+          const blockDataZY = blockDataZ[y];
           for (let x = 0; x !== size; ++x) {
-            blockData[z][y][x] = { exists: z === 0, color: "#008000" };
+            blockDataZY[x] = { exists: z === 0, color: "#008000" };
           }
         }
       }
