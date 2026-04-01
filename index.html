@@ -1,29 +1,37 @@
-<style>html{background-color:skyblue;}</style>
+<style>
+  html {
+    background-color: skyblue;
+  }
+
+</style>
 <svg width="600" height="600" viewBox="-500 -500 1500 1500" xmlns="http://www.w3.org/2000/svg">
-<rect width="1000%" height="1000%" fill="skyblue"/>
+  <rect width="1000%" height="1000%" fill="skyblue" />
 
   <style>
     .face {
       stroke: none;
       cursor: pointer;
     }
+
     #controls {
       position: absolute;
       top: 10px;
       left: 10px;
       padding: 10px;
-      background: rgba(255,255,255,0.9);
+      background: rgba(255, 255, 255, 0.9);
       border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
       font-family: system-ui, sans-serif;
       font-size: 14px;
       z-index: 1000;
     }
+
     #controls label {
       display: block;
       margin-bottom: 5px;
       font-weight: 500;
     }
+
     #colorInput {
       width: 100px;
       height: 30px;
@@ -32,6 +40,7 @@
       cursor: pointer;
       margin-bottom: 10px;
     }
+
     #modeToggle {
       width: 100%;
       padding: 8px;
@@ -42,14 +51,17 @@
       font-size: 14px;
       transition: background-color 0.2s;
     }
+
     #modeToggle.add {
       background-color: #4CAF50;
       color: white;
     }
+
     #modeToggle.remove {
       background-color: #f44336;
       color: white;
     }
+
     .rotate-btn {
       width: 48%;
       padding: 8px;
@@ -62,11 +74,13 @@
       color: white;
       margin-top: 5px;
     }
+
     .rotate-controls {
       display: flex;
       justify-content: space-between;
       margin-top: 5px;
     }
+
     #resetBtn {
       width: 100%;
       padding: 8px;
@@ -79,12 +93,13 @@
       color: white;
       margin-top: 5px;
     }
+
   </style>
 
   <foreignObject x="-200" y="-200" width="300" height="200">
     <div xmlns="http://www.w3.org/1999/xhtml" id="controls">
       <label for="colorInput">Block Color:</label>
-      <input type="color" id="colorInput" value="#008000"/>
+      <input type="color" id="colorInput" value="#008000" />
       <button id="modeToggle" class="add">Mode: Add Blocks</button>
       <div class="rotate-controls">
         <button id="rotateLeft" class="rotate-btn">↺ Rotate Left</button>
@@ -96,16 +111,17 @@
 
   <defs id="filters">
     <filter id="grain">
-      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" result="noise"/>
-      <feColorMatrix in="noise" type="saturate" values="0" result="desaturatedNoise"/>
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" result="noise" />
+      <feColorMatrix in="noise" type="saturate" values="0" result="desaturatedNoise" />
       <feComponentTransfer in="desaturatedNoise" result="theNoise">
-        <feFuncA type="table" tableValues="0 0 0.05 0"/>
+        <feFuncA type="table" tableValues="0 0 0.05 0" />
       </feComponentTransfer>
-      <feBlend in="SourceGraphic" in2="theNoise" mode="multiply"/>
+      <feBlend in="SourceGraphic" in2="theNoise" mode="multiply" />
     </filter>
   </defs>
 
-  <script type="application/ecmascript">/*<![CDATA[/**/
+  <script type="application/ecmascript">
+    /*<![CDATA[/**/
     const svgNS = "http://www.w3.org/2000/svg";
     const defs = document.getElementById("filters");
     const svg = document.currentScript.parentNode;
@@ -166,7 +182,10 @@
         for (let y = 0; y !== size; ++y) {
           const blockDataZY = blockDataZ[y];
           for (let x = 0; x !== size; ++x) {
-            blockDataZY[x] = { exists: z === 0, color: "#008000" };
+            blockDataZY[x] = {
+              exists: z === 0,
+              color: "#008000"
+            };
           }
         }
       }
@@ -218,7 +237,7 @@
           }
         }
       }
-      
+
       // Copy back
       for (let z = 0; z !== size; ++z) {
         const blockDataZ = blockData[z];
@@ -250,7 +269,7 @@
           }
         }
       }
-      
+
       // Copy back
       for (let z = 0; z !== size; ++z) {
         const blockDataZ = blockData[z];
@@ -285,7 +304,10 @@
         blockDataZY = blockDataZ[y];
         for (let x = 0; x !== size; ++x) {
           // Only fill the bottom layer (z === 0)
-          blockDataZY[x] = { exists: z === 0, color: "#008000" };
+          blockDataZY[x] = {
+            exists: z === 0,
+            color: "#008000"
+          };
         }
       }
     }
@@ -293,7 +315,7 @@
     function renderAllBlocks() {
       // Clear all rendered blocks
       const existingBlocks = svg.querySelectorAll('g[data-block]');
-      for(const block of existingBlocks){
+      for (const block of existingBlocks) {
         block.remove();
       }
       // Render in correct order: back to front, bottom to top
@@ -313,91 +335,91 @@
 
     function createFaceFilter(x, y, z, brightness, color) {
       const filterId = `f-${x}-${y}-${z}-${brightness}-${color.replace('#','')}`;
-      
+
       // Check if filter already exists
       if (document.getElementById(filterId)) {
         return filterId;
       }
 
-      const filter = document.createElementNS(svgNS,"filter");
+      const filter = document.createElementNS(svgNS, "filter");
       filter.setAttribute("id", filterId);
 
-      const flood = document.createElementNS(svgNS,"feFlood");
+      const flood = document.createElementNS(svgNS, "feFlood");
       flood.setAttribute("flood-color", color);
-      flood.setAttribute("result","baseColor");
+      flood.setAttribute("result", "baseColor");
       filter.appendChild(flood);
 
-      const composite1 = document.createElementNS(svgNS,"feComposite");
-      composite1.setAttribute("in","baseColor");
-      composite1.setAttribute("in2","SourceAlpha");
-      composite1.setAttribute("operator","in");
-      composite1.setAttribute("result","coloredShape");
+      const composite1 = document.createElementNS(svgNS, "feComposite");
+      composite1.setAttribute("in", "baseColor");
+      composite1.setAttribute("in2", "SourceAlpha");
+      composite1.setAttribute("operator", "in");
+      composite1.setAttribute("result", "coloredShape");
       filter.appendChild(composite1);
 
-      const turbulence = document.createElementNS(svgNS,"feTurbulence");
-      turbulence.setAttribute("type","turbulence");
-      turbulence.setAttribute("baseFrequency","1");
-      turbulence.setAttribute("numOctaves","5");
-      turbulence.setAttribute("result","noise");
-      turbulence.setAttribute("stitchTiles","stitch");
+      const turbulence = document.createElementNS(svgNS, "feTurbulence");
+      turbulence.setAttribute("type", "turbulence");
+      turbulence.setAttribute("baseFrequency", "1");
+      turbulence.setAttribute("numOctaves", "5");
+      turbulence.setAttribute("result", "noise");
+      turbulence.setAttribute("stitchTiles", "stitch");
       filter.appendChild(turbulence);
 
-      const sat = document.createElementNS(svgNS,"feColorMatrix");
-      sat.setAttribute("in","coloredShape");
-      sat.setAttribute("type","saturate");
-      sat.setAttribute("values", (1 + x*0.05).toFixed(3));
-      sat.setAttribute("result","saturated");
+      const sat = document.createElementNS(svgNS, "feColorMatrix");
+      sat.setAttribute("in", "coloredShape");
+      sat.setAttribute("type", "saturate");
+      sat.setAttribute("values", (1 + x * 0.05).toFixed(3));
+      sat.setAttribute("result", "saturated");
       filter.appendChild(sat);
 
-      const contrast = document.createElementNS(svgNS,"feComponentTransfer");
-      contrast.setAttribute("in","saturated");
-      contrast.setAttribute("result","contrasted");
-      for(const c of ['R','G','B']){
-        const func = document.createElementNS(svgNS,"feFunc"+c);
-        func.setAttribute("type","linear");
-        func.setAttribute("slope",(1 + y*0.05).toFixed(3));
+      const contrast = document.createElementNS(svgNS, "feComponentTransfer");
+      contrast.setAttribute("in", "saturated");
+      contrast.setAttribute("result", "contrasted");
+      for (const c of ['R', 'G', 'B']) {
+        const func = document.createElementNS(svgNS, "feFunc" + c);
+        func.setAttribute("type", "linear");
+        func.setAttribute("slope", (1 + y * 0.05).toFixed(3));
         contrast.appendChild(func);
       }
       filter.appendChild(contrast);
 
-      const hue = document.createElementNS(svgNS,"feColorMatrix");
-      hue.setAttribute("in","contrasted");
-      hue.setAttribute("type","hueRotate");
-      hue.setAttribute("values",(z*3));
-      hue.setAttribute("result","hued");
+      const hue = document.createElementNS(svgNS, "feColorMatrix");
+      hue.setAttribute("in", "contrasted");
+      hue.setAttribute("type", "hueRotate");
+      hue.setAttribute("values", (z * 3));
+      hue.setAttribute("result", "hued");
       filter.appendChild(hue);
 
-      const bright = document.createElementNS(svgNS,"feComponentTransfer");
-      bright.setAttribute("in","hued");
-      bright.setAttribute("result","brightened");
-      for(const c of ['R','G','B']){
-        const func = document.createElementNS(svgNS,"feFunc"+c);
-        func.setAttribute("type","linear");
-        func.setAttribute("slope",brightness);
+      const bright = document.createElementNS(svgNS, "feComponentTransfer");
+      bright.setAttribute("in", "hued");
+      bright.setAttribute("result", "brightened");
+      for (const c of ['R', 'G', 'B']) {
+        const func = document.createElementNS(svgNS, "feFunc" + c);
+        func.setAttribute("type", "linear");
+        func.setAttribute("slope", brightness);
         bright.appendChild(func);
       }
       filter.appendChild(bright);
 
-      const colorMatrix = document.createElementNS(svgNS,"feColorMatrix");
-      colorMatrix.setAttribute("in","noise");
-      colorMatrix.setAttribute("type","saturate");
-      colorMatrix.setAttribute("values","0");
-      colorMatrix.setAttribute("result","desaturatedNoise");
+      const colorMatrix = document.createElementNS(svgNS, "feColorMatrix");
+      colorMatrix.setAttribute("in", "noise");
+      colorMatrix.setAttribute("type", "saturate");
+      colorMatrix.setAttribute("values", "0");
+      colorMatrix.setAttribute("result", "desaturatedNoise");
       filter.appendChild(colorMatrix);
 
-      const componentTransfer = document.createElementNS(svgNS,"feComponentTransfer");
-      componentTransfer.setAttribute("in","desaturatedNoise");
-      componentTransfer.setAttribute("result","theNoise");
-      const funcA = document.createElementNS(svgNS,"feFuncA");
-      funcA.setAttribute("type","table");
-      funcA.setAttribute("tableValues","0 0 0.15 0");
+      const componentTransfer = document.createElementNS(svgNS, "feComponentTransfer");
+      componentTransfer.setAttribute("in", "desaturatedNoise");
+      componentTransfer.setAttribute("result", "theNoise");
+      const funcA = document.createElementNS(svgNS, "feFuncA");
+      funcA.setAttribute("type", "table");
+      funcA.setAttribute("tableValues", "0 0 0.15 0");
       componentTransfer.appendChild(funcA);
       filter.appendChild(componentTransfer);
 
-      const blend = document.createElementNS(svgNS,"feBlend");
-      blend.setAttribute("in","brightened");
-      blend.setAttribute("in2","theNoise");
-      blend.setAttribute("mode","multiply");
+      const blend = document.createElementNS(svgNS, "feBlend");
+      blend.setAttribute("in", "brightened");
+      blend.setAttribute("in2", "theNoise");
+      blend.setAttribute("mode", "multiply");
       filter.appendChild(blend);
 
       defs.appendChild(filter);
@@ -405,10 +427,10 @@
     }
 
     function renderBlock(x, y, z, color) {
-      const sx = (originX + x*(tileW*xScale) - y*(tileW*yScale));
-      const sy = (originY + x*(tileH*xScale) + y*(tileH*yScale) - z*levelHeight);
+      const sx = (originX + x * (tileW * xScale) - y * (tileW * yScale));
+      const sy = (originY + x * (tileH * xScale) + y * (tileH * yScale) - z * levelHeight);
 
-      const g = document.createElementNS(svgNS,"g");
+      const g = document.createElementNS(svgNS, "g");
       g.setAttribute("transform", `translate(${sx},${sy})`);
       g.setAttribute("data-block", "true");
       const gDataset = g.dataset;
@@ -421,29 +443,29 @@
       const vHeight = levelHeight;
 
       // Top face
-      const top = document.createElementNS(svgNS,"polygon");
-      top.setAttribute("points",`${w} 0, ${w*2} ${h}, ${w} ${h*2}, 0 ${h}`);
-      top.setAttribute("class","face");
-      const fTop = createFaceFilter(x,y,z,1.15,color);
-      top.setAttribute("filter",`url(#${fTop})`);
+      const top = document.createElementNS(svgNS, "polygon");
+      top.setAttribute("points", `${w} 0, ${w*2} ${h}, ${w} ${h*2}, 0 ${h}`);
+      top.setAttribute("class", "face");
+      const fTop = createFaceFilter(x, y, z, 1.15, color);
+      top.setAttribute("filter", `url(#${fTop})`);
       top.dataset.face = "top";
       g.appendChild(top);
 
       // Left face (lighter one going down-left)
-      const left = document.createElementNS(svgNS,"polygon");
-      left.setAttribute("points",`0 ${h}, ${w} ${h*2}, ${w} ${h*2+vHeight}, 0 ${h+vHeight}`);
-      left.setAttribute("class","face");
-      const fLeft = createFaceFilter(x,y,z,0.95,color);
-      left.setAttribute("filter",`url(#${fLeft})`);
+      const left = document.createElementNS(svgNS, "polygon");
+      left.setAttribute("points", `0 ${h}, ${w} ${h*2}, ${w} ${h*2+vHeight}, 0 ${h+vHeight}`);
+      left.setAttribute("class", "face");
+      const fLeft = createFaceFilter(x, y, z, 0.95, color);
+      left.setAttribute("filter", `url(#${fLeft})`);
       left.dataset.face = "left";
       g.appendChild(left);
 
       // Right face (darker one going down-right)
-      const right = document.createElementNS(svgNS,"polygon");
-      right.setAttribute("points",`${w*2} ${h}, ${w} ${h*2}, ${w} ${h*2+vHeight}, ${w*2} ${h+vHeight}`);
-      right.setAttribute("class","face");
-      const fRight = createFaceFilter(x,y,z,0.8,color);
-      right.setAttribute("filter",`url(#${fRight})`);
+      const right = document.createElementNS(svgNS, "polygon");
+      right.setAttribute("points", `${w*2} ${h}, ${w} ${h*2}, ${w} ${h*2+vHeight}, ${w*2} ${h+vHeight}`);
+      right.setAttribute("class", "face");
+      const fRight = createFaceFilter(x, y, z, 0.8, color);
+      right.setAttribute("filter", `url(#${fRight})`);
       right.dataset.face = "right";
       g.appendChild(right);
 
@@ -451,67 +473,94 @@
       const clickHandler = (e) => {
         e.stopPropagation();
         const face = e.target.dataset.face;
-        
+
         if (isAddMode) {
           let placed = false;
-          
+
           // Place based on which face was clicked
           if (face === "top") {
             // Top face clicked - place above (z+1)
             if (z + 1 < size && !blockData[z + 1][y][x].exists) {
-              blockData[z + 1][y][x] = { exists: true, color: colorInput.value };
+              blockData[z + 1][y][x] = {
+                exists: true,
+                color: colorInput.value
+              };
               placed = true;
             }
           } else if (face === "left") {
             // Left face (lighter, going down-left) - place away from viewer (+y)
             if (y + 1 < size && !blockData[z][y + 1][x].exists) {
-              blockData[z][y + 1][x] = { exists: true, color: colorInput.value };
+              blockData[z][y + 1][x] = {
+                exists: true,
+                color: colorInput.value
+              };
               placed = true;
             }
           } else if (face === "right") {
             // Right face (darker, going down-right) - place to the right (+x)
             if (x + 1 < size && !blockData[z][y][x + 1].exists) {
-              blockData[z][y][x + 1] = { exists: true, color: colorInput.value };
+              blockData[z][y][x + 1] = {
+                exists: true,
+                color: colorInput.value
+              };
               placed = true;
             }
           }
-          
+
           // Fallback: if face placement failed, try other adjacent spaces
           if (!placed) {
             // Try placing on top first
             if (z + 1 < size && !blockData[z + 1][y][x].exists) {
-              blockData[z + 1][y][x] = { exists: true, color: colorInput.value };
+              blockData[z + 1][y][x] = {
+                exists: true,
+                color: colorInput.value
+              };
               placed = true;
             }
             // Try +x direction
             else if (x + 1 < size && !blockData[z][y][x + 1].exists) {
-              blockData[z][y][x + 1] = { exists: true, color: colorInput.value };
+              blockData[z][y][x + 1] = {
+                exists: true,
+                color: colorInput.value
+              };
               placed = true;
             }
             // Try -y direction
             else if (y - 1 >= 0 && !blockData[z][y - 1][x].exists) {
-              blockData[z][y - 1][x] = { exists: true, color: colorInput.value };
+              blockData[z][y - 1][x] = {
+                exists: true,
+                color: colorInput.value
+              };
               placed = true;
             }
             // Try -x direction
             else if (x - 1 >= 0 && !blockData[z][y][x - 1].exists) {
-              blockData[z][y][x - 1] = { exists: true, color: colorInput.value };
+              blockData[z][y][x - 1] = {
+                exists: true,
+                color: colorInput.value
+              };
               placed = true;
             }
             // Try +y direction
             else if (y + 1 < size && !blockData[z][y + 1][x].exists) {
-              blockData[z][y + 1][x] = { exists: true, color: colorInput.value };
+              blockData[z][y + 1][x] = {
+                exists: true,
+                color: colorInput.value
+              };
               placed = true;
             }
           }
-          
+
           if (placed) {
             renderAllBlocks();
             saveState();
           }
         } else {
           // Remove block
-          blockData[z][y][x] = { exists: false, color: null };
+          blockData[z][y][x] = {
+            exists: false,
+            color: null
+          };
           renderAllBlocks();
           saveState();
         }
@@ -527,16 +576,19 @@
     // Initialize grid
     loadState();
     renderAllBlocks();
-  /*]]>*/</script>
+    /*]]>*/
+
+  </script>
 
 </svg>
 <style>
-  svg{
+  svg {
     transition: transform 0.1s linear;
   }
+
 </style>
 <script defer>
-  (async()=>{
+  (async () => {
     const Q = fn => {
       try {
         return fn?.()
@@ -547,25 +599,26 @@
       priority: "background",
       ...options
     });
-    const callback = Q(() => requestIdleCallback) ?? Q(() => scheduler)?.postTask ? postTask : Q(() => requestAnimationFrame) ?? delay; 
+    const callback = Q(() => requestIdleCallback) ?? Q(() => scheduler)?.postTask ? postTask : Q(() => requestAnimationFrame) ?? delay;
     const nextIdle = () => new Promise(resolve => callback(resolve));
     const svg = document.querySelector('svg');
     const svgClientWidth = svg.clientWidth;
     const svgClientHeight = svg.clientHeight;
     const defaultZoom = window.devicePixelRatio || 1;
     const defaultMobileZoom = window.visualViewport?.scale || 1;
-    while(true){
-      const marginX = (window.innerWidth - svgClientWidth)/2.2;
-      const marginY = (window.innerWidth - svgClientHeight)/2;
+    while (true) {
+      const marginX = (window.innerWidth - svgClientWidth) / 2.2;
+      const marginY = (window.innerWidth - svgClientHeight) / 2;
       const mobileRatio = (window.visualViewport?.scale || 1) / defaultMobileZoom;
       const ratio = mobileRatio * window.devicePixelRatio / defaultZoom;
       const size = ratio * window.innerWidth / svgClientWidth;
       const scale = `scale(${0.8*size}) translateX(${marginX/size}px) translateY(${marginY/size}px)`;
-      if(svg.style.transform != scale){
+      if (svg.style.transform != scale) {
         svg.style.transform = scale;
       }
       await sleep(100);
       await nextIdle();
     }
   })();
+
 </script>
